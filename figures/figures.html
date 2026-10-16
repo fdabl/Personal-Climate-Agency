@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Figures - Personal climate agency</title>
+<!--
+  Preview of the publication figures. Copied into figures/ by data_analysis.Rmd,
+  next to the Figure_<key>_data.js files it loads. Works from file:// with no
+  server or internet connection. Use the buttons to save SVG or 600-dpi PNG.
+-->
+<style>
+  body { margin: 0; padding: 24px; background: #F3F4F5; color: #1F2529;
+         font: 14px/1.4 Arial, Helvetica, sans-serif; }
+  h1 { font-size: 18px; margin: 0 0 4px; }
+  p.note { margin: 0 0 24px; color: #5E6A71; }
+  section { background: #FFFFFF; border: 1px solid #DDE1E4; border-radius: 6px;
+            padding: 16px; margin: 0 0 24px; max-width: 980px; }
+  section h2 { font-size: 15px; margin: 0 0 10px; display: flex; gap: 8px; align-items: center; }
+  section h2 span { flex: 1; }
+  button { font: inherit; font-size: 13px; padding: 4px 10px; border: 1px solid #B9C1C7;
+           border-radius: 4px; background: #FFFFFF; cursor: pointer; }
+  button:hover { background: #EEF1F3; }
+  .figure svg { width: 100%; height: auto; display: block; }
+  .error { color: #A33A2A; white-space: pre-wrap; }
+  @media print { body { background: #FFFFFF; padding: 0; } button, p.note { display: none; }
+                 section { border: none; page-break-after: always; } }
+</style>
+</head>
+<body>
+<h1>Personal climate agency: figures</h1>
+<p class="note">Rendered from the data exported by data_analysis.Rmd. Width 183 mm; text 6&ndash;8 pt at print size.</p>
+<div id="figures"></div>
+
+<script src="Figure_1_data.js"></script>
+<script src="Figure_2_data.js"></script>
+<script src="Figure_3_data.js"></script>
+<script src="Figure_4_data.js"></script>
+<script src="Figure_S1_data.js"></script>
+<script src="render_figures.js"></script>
+<script>
+(function () {
+  'use strict';
+  const NAMES = { '1': 'Figure 1', '2': 'Figure 2', '3': 'Figure 3', '4': 'Figure 4', 'S1': 'Supplementary Figure 1' };
+  const data = window.FIGURE_DATA || {};
+  const host = document.getElementById('figures');
+
+  function download(name, blob) {
+    const url = URL.createObjectURL(blob), a = document.createElement('a');
+    a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  function savePng(key, svgText) {
+    const widthPx = Math.round(FigureRenderer.PAGE_WIDTH_MM / 25.4 * 600);   // 600 dpi
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = widthPx;
+      canvas.height = Math.round(widthPx * img.naturalHeight / img.naturalWidth);
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#FFFFFF'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      canvas.toBlob(b => download(`Figure_${key}.png`, b), 'image/png');
+    };
+    img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgText);
+  }
+
+  for (const key of FigureRenderer.keys) {
+    const section = document.createElement('section');
+    const head = document.createElement('h2');
+    head.innerHTML = `<span>${NAMES[key]}</span>`;
+    section.appendChild(head);
+    const body = document.createElement('div');
+    body.className = 'figure';
+    section.appendChild(body);
+    host.appendChild(section);
+    try {
+      const svgText = FigureRenderer.render(key, data[key]);
+      body.innerHTML = svgText.replace(/^<\?xml[^>]*>\s*/, '');
+      const bSvg = document.createElement('button');
+      bSvg.textContent = 'Save SVG';
+      bSvg.onclick = () => download(`Figure_${key}.svg`, new Blob([svgText], { type: 'image/svg+xml' }));
+      const bPng = document.createElement('button');
+      bPng.textContent = 'Save PNG (600 dpi)';
+      bPng.onclick = () => savePng(key, svgText);
+      head.append(bSvg, bPng);
+    } catch (e) {
+      body.innerHTML = `<p class="error">${NAMES[key]} could not be drawn: ${e.message}</p>`;
+    }
+  }
+})();
+</script>
+</body>
+</html>
+

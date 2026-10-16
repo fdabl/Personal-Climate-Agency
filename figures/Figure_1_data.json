@@ -1,0 +1,154 @@
+{
+  "n_respondents": 1012,
+  "hist": {
+    "opportunity": [0.00691699604743083, 0.000988142292490119, 0.00296442687747036, 0.00691699604743083, 0.00494071146245059, 0.00296442687747036, 0.00494071146245059, 0.0128458498023715, 0.0128458498023715, 0.0148221343873518, 0.0217391304347826, 0.0286561264822134, 0.0306324110671937, 0.050395256916996, 0.100790513833992, 0.135375494071146, 0.174901185770751, 0.112648221343874, 0.273715415019763],
+    "taken": [0.145256916996047, 0.147233201581028, 0.125494071146245, 0.131422924901186, 0.101778656126482, 0.0839920948616601, 0.0543478260869565, 0.0612648221343874, 0.0474308300395257, 0.0345849802371542, 0.0266798418972332, 0.0128458498023715, 0.0148221343873518, 0.00691699604743083, 0.000988142292490119, 0.00296442687747036, 0, 0.00197628458498024, 0],
+    "remaining": [0.0207509881422925, 0.00889328063241107, 0.0138339920948617, 0.0316205533596838, 0.0306324110671937, 0.0316205533596838, 0.0316205533596838, 0.0434782608695652, 0.0563241106719368, 0.0553359683794466, 0.0711462450592885, 0.0691699604743083, 0.0790513833992095, 0.0909090909090909, 0.0810276679841897, 0.101778656126482, 0.0622529644268775, 0.0622529644268775, 0.058300395256917]
+  },
+  "items": [
+    {
+      "behaviour_id": 1,
+      "action": "Buy an electric car",
+      "role": "Consumer (technology)",
+      "taken": 0.349802371541502,
+      "untaken": 0.457509881422925,
+      "not_relevant": 0.192687747035573
+    },
+    {
+      "behaviour_id": 2,
+      "action": "Improve home energy efficiency",
+      "role": "Consumer (technology)",
+      "taken": 0.386363636363636,
+      "untaken": 0.41798418972332,
+      "not_relevant": 0.195652173913043
+    },
+    {
+      "behaviour_id": 6,
+      "action": "Install solar panels",
+      "role": "Consumer (technology)",
+      "taken": 0.0958498023715415,
+      "untaken": 0.478260869565217,
+      "not_relevant": 0.425889328063241
+    },
+    {
+      "behaviour_id": 3,
+      "action": "Take fewer flights",
+      "role": "Consumer (curtailment)",
+      "taken": 0.300395256916996,
+      "untaken": 0.58300395256917,
+      "not_relevant": 0.116600790513834
+    },
+    {
+      "behaviour_id": 4,
+      "action": "Eat less red meat",
+      "role": "Consumer (curtailment)",
+      "taken": 0.379446640316206,
+      "untaken": 0.571146245059289,
+      "not_relevant": 0.0494071146245059
+    },
+    {
+      "behaviour_id": 5,
+      "action": "Use public transport",
+      "role": "Consumer (curtailment)",
+      "taken": 0.184782608695652,
+      "untaken": 0.719367588932806,
+      "not_relevant": 0.0958498023715415
+    },
+    {
+      "behaviour_id": 7,
+      "action": "Eat less white meat",
+      "role": "Consumer (curtailment)",
+      "taken": 0.188735177865613,
+      "untaken": 0.760869565217391,
+      "not_relevant": 0.050395256916996
+    },
+    {
+      "behaviour_id": 8,
+      "action": "Drive fewer kilometres",
+      "role": "Consumer (curtailment)",
+      "taken": 0.206521739130435,
+      "untaken": 0.691699604743083,
+      "not_relevant": 0.101778656126482
+    },
+    {
+      "behaviour_id": 9,
+      "action": "Reduce home heating/cooling",
+      "role": "Consumer (curtailment)",
+      "taken": 0.370553359683794,
+      "untaken": 0.550395256916996,
+      "not_relevant": 0.0790513833992095
+    },
+    {
+      "behaviour_id": 12,
+      "action": "Support initiatives at work",
+      "role": "Organisational participant",
+      "taken": 0.117588932806324,
+      "untaken": 0.41501976284585,
+      "not_relevant": 0.467391304347826
+    },
+    {
+      "behaviour_id": 13,
+      "action": "Promote change in organisation",
+      "role": "Organisational participant",
+      "taken": 0.091897233201581,
+      "untaken": 0.493083003952569,
+      "not_relevant": 0.41501976284585
+    },
+    {
+      "behaviour_id": 10,
+      "action": "Move investments/pension",
+      "role": "Investor",
+      "taken": 0.152173913043478,
+      "untaken": 0.635375494071146,
+      "not_relevant": 0.212450592885375
+    },
+    {
+      "behaviour_id": 11,
+      "action": "Donate to climate organisations",
+      "role": "Citizen",
+      "taken": 0.128458498023715,
+      "untaken": 0.74802371541502,
+      "not_relevant": 0.123517786561265
+    },
+    {
+      "behaviour_id": 16,
+      "action": "Vote for pro-climate politicians",
+      "role": "Citizen",
+      "taken": 0.271739130434783,
+      "untaken": 0.690711462450593,
+      "not_relevant": 0.0375494071146245
+    },
+    {
+      "behaviour_id": 17,
+      "action": "Sign petitions/contact politicians",
+      "role": "Citizen",
+      "taken": 0.110671936758893,
+      "untaken": 0.788537549407115,
+      "not_relevant": 0.100790513833992
+    },
+    {
+      "behaviour_id": 18,
+      "action": "Participate in demonstrations",
+      "role": "Citizen",
+      "taken": 0.0227272727272727,
+      "untaken": 0.814229249011858,
+      "not_relevant": 0.16304347826087
+    },
+    {
+      "behaviour_id": 14,
+      "action": "Be a climate role model",
+      "role": "Social role model",
+      "taken": 0.174901185770751,
+      "untaken": 0.75395256916996,
+      "not_relevant": 0.0711462450592885
+    },
+    {
+      "behaviour_id": 15,
+      "action": "Talk with family/friends",
+      "role": "Social role model",
+      "taken": 0.300395256916996,
+      "untaken": 0.653162055335968,
+      "not_relevant": 0.0464426877470356
+    }
+  ]
+}

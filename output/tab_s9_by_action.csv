@@ -1,0 +1,19 @@
+behaviour_id,behaviour_name,behaviour_role,Not relevant,"Relevant, not taken",Already taken
+1,Buy an electric car,Consumer (technology),19.3,45.8,35
+2,Improve home energy efficiency,Consumer (technology),19.6,41.8,38.6
+3,Take fewer flights,Consumer (curtailment),11.7,58.3,30
+4,Eat less red meat,Consumer (curtailment),4.9,57.1,37.9
+5,Use public transport for most longer trips,Consumer (curtailment),9.6,71.9,18.5
+6,Install solar panels,Consumer (technology),42.6,47.8,9.6
+7,Eat less white meat,Consumer (curtailment),5,76.1,18.9
+8,Drive fewer kilometers,Consumer (curtailment),10.2,69.2,20.7
+9,Reduce home heating/cooling energy use,Consumer (curtailment),7.9,55,37.1
+10,Move investments/pension to climate-friendly funds,Investor,21.2,63.5,15.2
+11,Donate to climate organizations,Citizen,12.4,74.8,12.8
+12,Suggest or support climate initiatives at work,Organisational participant,46.7,41.5,11.8
+13,Promote ambitious climate-related changes in organization,Organisational participant,41.5,49.3,9.2
+14,Be a climate role model,Social role model,7.1,75.4,17.5
+15,Talk with family/friends about climate action,Social role model,4.6,65.3,30
+16,Vote for pro-climate politicians,Citizen,3.8,69.1,27.2
+17,Sign petitions/contact politicians about climate,Citizen,10.1,78.9,11.1
+18,Participate in climate demonstrations,Citizen,16.3,81.4,2.3

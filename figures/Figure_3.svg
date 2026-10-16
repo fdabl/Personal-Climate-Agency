@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="183mm" height="71.61mm" viewBox="0 0 518.74 203">
+<title>Figure 3. Factors associated with utilisation, perceived opportunity and motivation</title>
+<rect x="0" y="0" width="518.74" height="203" fill="#FFFFFF"/>
+<g font-family="Arial, Helvetica, 'Liberation Sans', sans-serif" fill="#1F2529">
+<line x1="-1" y1="4" x2="7" y2="4" stroke="#1B4F72" stroke-width="0.8"/>
+<circle cx="3" cy="4" r="2.2" fill="#1B4F72"/>
+<text x="9" y="6.45" font-size="7" text-anchor="start" fill="#1F2529">Overall (95% CI)</text>
+<circle cx="3" cy="13" r="1.35" fill="#A9B4BB"/>
+<text x="9" y="15.45" font-size="7" text-anchor="start" fill="#1F2529">Each of the six roles</text>
+<text x="93.37" y="40.45" font-size="7" text-anchor="end" font-weight="bold" fill="#1F2529">Socio-demographic</text>
+<text x="93.37" y="51.45" font-size="7" text-anchor="end" fill="#1F2529">Income</text>
+<text x="93.37" y="64.45" font-size="7" text-anchor="end" fill="#1F2529">Age</text>
+<text x="93.37" y="77.45" font-size="7" text-anchor="end" fill="#1F2529">Women vs men</text>
+<text x="93.37" y="95.45" font-size="7" text-anchor="end" font-weight="bold" fill="#1F2529">Psychological</text>
+<text x="93.37" y="106.45" font-size="7" text-anchor="end" fill="#1F2529">Expected quality-of-life impact</text>
+<text x="93.37" y="119.45" font-size="7" text-anchor="end" fill="#1F2529">Climate conversations</text>
+<text x="93.37" y="132.45" font-size="7" text-anchor="end" fill="#1F2529">Action knowledge</text>
+<text x="93.37" y="145.45" font-size="7" text-anchor="end" fill="#1F2529">Individual-attribution belief</text>
+<text x="93.37" y="158.45" font-size="7" text-anchor="end" fill="#1F2529">Techno-optimism</text>
+<text x="93.37" y="171.45" font-size="7" text-anchor="end" fill="#1F2529">Political orientation (right)</text>
+<text x="103.37" y="6.8" font-size="8" text-anchor="start" font-weight="bold" fill="#1F2529">a</text>
+<text x="112.37" y="6.45" font-size="7" text-anchor="start" fill="#1F2529">Utilisation</text>
+<text x="112.37" y="15.1" font-size="6" text-anchor="start" fill="#5E6A71">among relevant actions</text>
+<line x1="124.62" y1="32" x2="124.62" y2="176" stroke="#E3E7EA" stroke-width="0.4"/>
+<line x1="169.53" y1="32" x2="169.53" y2="176" stroke="#E3E7EA" stroke-width="0.4"/>
+<line x1="191.99" y1="32" x2="191.99" y2="176" stroke="#E3E7EA" stroke-width="0.4"/>
+<line x1="214.45" y1="32" x2="214.45" y2="176" stroke="#E3E7EA" stroke-width="0.4"/>
+<line x1="147.08" y1="32" x2="147.08" y2="176" stroke="#8C9BA5" stroke-width="0.6" stroke-dasharray="2 2"/>
+<circle cx="164.01" cy="49" r="1.35" fill="#A9B4BB"/>
+<circle cx="129.21" cy="49" r="1.35" fill="#A9B4BB"/>
+<circle cx="159.18" cy="49" r="1.35" fill="#A9B4BB"/>
+<circle cx="133.1" cy="49" r="1.35" fill="#A9B4BB"/>
+<circle cx="134.26" cy="49" r="1.35" fill="#A9B4BB"/>
+<circle cx="132.7" cy="49" r="1.35" fill="#A9B4BB"/>
+<line x1="131.65" y1="49" x2="145.02" y2="49" stroke="#1B4F72" stroke-width="0.8"/>
+<circle cx="138.34" cy="49" r="2.2" fill="#1B4F72"/>
+<circle cx="156.7" cy="62" r="1.35" fill="#A9B4BB"/>
+<circle cx="149.73" cy="62" r="1.35" fill="#A9B4BB"/>
+<circle cx="149.15" cy="62" r="1.35" fill="#A9B4BB"/>
+<circle cx="162.31" cy="62" r="1.35" fill="#A9B4BB"/>
+<circle cx="144.84" cy="62" r="1.35" fill="#A9B4BB"/>
+<circle cx="145.53" cy="62" r="1.35" fill="#A9B4BB"/>
+<line x1="143.22" y1="62" x2="156.12" y2="62" stroke="#1B4F72" stroke-width="0.8"/>
+<circle cx="149.67" cy="62" r="2.2" fill="#1B4F72"/>
+<circle cx="155.99" cy="75" r="1.35" fill="#A9B4BB"/>
+<circle cx="203.09" cy="75" r="1.35" fill="#A9B4BB"/>
+<circle cx="171.31" cy="75" r="1.35" fill="#A9B4BB"/>
+<circle cx="195.25" cy="75" r="1.35" fill="#A9B4BB"/>
+<circle cx="170.97" cy="75" r="1.35" fill="#A9B4BB"/>
+<circle cx="182.08" cy="75" r="1.35" fill="#A9B4BB"/>
+<line x1="169.33" y1="75" x2="197.09" y2="75" stroke="#1B4F72" stroke-width="0.8"/>
+<circle cx="183.21" cy="75" r="2.2" fill="#1B4F72"/>
+<circle cx="172.37" cy="117" r="1.35" fill="#A9B4BB"/>
+<circle cx="185.48" cy="117" r="1.35" fill="#A9B4BB"/>
+<circle cx="193.84" cy="117" r="1.35" fill="#A9B4BB"/>
+<circle cx="196.82" cy="117" r="1.35" fill="#A9B4BB"/>
+<circle cx="192.37" cy="117" r="1.35" fill="#A9B4BB"/>
+<circle cx="222.34" cy="117" r="1.35" fill="#A9B4BB"/>
+<line x1="182.95" y1="117" x2="199.12" y2="117" stroke="#1B4F72" stroke-width="0.8"/>
+<circle cx="191.03" cy="117" r="2.2" fill="#1B4F72"/>
+<circle cx="165.69" cy="130" r="1.35" fill="#A9B4BB"/>
+<circle cx="168.68" cy="130" r="1.35" fill="#A9B4BB"/>
+<circle cx="175.31" cy="130" r="1.35" fill="#A9B4BB"/>
+<circle cx="173.49" cy="130" r="1.35" fill="#A9B4BB"/>
+<circle cx="166.48" cy="130" r="1.35" fill="#A9B4BB"/>
+<circle cx="183.37" cy="130" r="1.35" fill="#A9B4BB"/>
+<line x1="163.08" y1="130" x2="177.53" y2="130" stroke="#1B4F72" stroke-width="0.8"/>
+<circle cx="170.3" cy="130" r="2.2" fill="#1B4F72"/>
+<circle cx="162.95" cy="143" r="1.35" fill="#A9B4BB"/>
+<circle cx="166.25" cy="143" r="1.35" fill="#A9B4BB"/>
+<circle cx="165.02" cy="143" r="1.35" fill="#A9B4BB"/>
+<circle cx="160.9" cy="143" r="1.35" fill="#A9B4BB"/>
+<circle cx="158.73" cy="143" r="1.35" fill="#A9B4BB"/>
+<circle cx="177.44" cy="143" r="1.35" fill="#A9B4BB"/>
+<line x1="157.98" y1="143" x2="172.04" y2="143" stroke="#1B4F72" stroke-width="0.8"/>
+<circle cx="165.01" cy="143" r="2.2" fill="#1B4F72"/>
+<circle cx="151.18" cy="156" r="1.35" fill="#A9B4BB"/>
+<circle cx="125.42" cy="156" r="1.35" fill="#A9B4BB"/>
+<circle cx="130.51" cy="156" r="1.35" fill="#A9B4BB"/>
+<circle cx="131.47" cy="156" r="1.35" fill="#A9B4BB"/>
+<circle cx="123.51" cy="156" r="1.35" fill="#A9B4BB"/>
+<circle cx="115.96" cy="156" r="1.35" fill="#A9B4BB"/>
+<line x1="121.94" y1="156" x2="134.51" y2="156" stroke="#1B4F72" stroke-width="0.8"/>
+<circle cx="128.23" cy="156" r="2.2" fill="#1B4F72"/>
+<circle cx="149.9" cy="169" r="1.35" fill="#A9B4BB"/>
+<circle cx="121.98" cy="169" r="1.35" fill="#A9B4BB"/>
+<circle cx="130.33" cy="169" r="1.35" fill="#A9B4BB"/>
+<circle cx="125.23" cy="169" r="1.35" fill="#A9B4BB"/>
+<circle cx="116.04" cy="169" r="1.35" fill="#A9B4BB"/>
+<circle cx="112.18" cy="169" r="1.35" fill="#A9B4BB"/>
+<line x1="117.7" y1="169" x2="130.7" y2="169" stroke="#1B4F72" stroke-width="0.8"/>
+<circle cx="124.2" cy="169" r="2.2" fill="#1B4F72"/>
+<line x1="103.37" y1="178" x2="231.16" y2="178" stroke="#1F2529" stroke-width="0.5"/>
+<line x1="124.62" y1="178" x2="124.62" y2="180.5" stroke="#1F2529" stroke-width="0.5"/>
+<text x="124.62" y="188.1" font-size="6" text-anchor="middle" fill="#1F2529">−5</text>
+<line x1="147.08" y1="178" x2="147.08" y2="180.5" stroke="#1F2529" stroke-width="0.5"/>
+<text x="147.08" y="188.1" font-size="6" text-anchor="middle" fill="#1F2529">0</text>
+<line x1="169.53" y1="178" x2="169.53" y2="180.5" stroke="#1F2529" stroke-width="0.5"/>
+<text x="169.53" y="188.1" font-size="6" text-anchor="middle" fill="#1F2529">5</text>
+<line x1="191.99" y1="178" x2="191.99" y2="180.5" stroke="#1F2529" stroke-width="0.5"/>
+<text x="191.99" y="188.1" font-size="6" text-anchor="middle" fill="#1F2529">10</text>
+<line x1="214.45" y1="178" x2="214.45" y2="180.5" stroke="#1F2529" stroke-width="0.5"/>
+<text x="214.45" y="188.1" font-size="6" text-anchor="middle" fill="#1F2529">15</text>
+<text x="167.26" y="199.45" font-size="7" text-anchor="middle" fill="#1F2529">Percentage-point difference</text>
+<text x="245.16" y="6.8" font-size="8" text-anchor="start" font-weight="bold" fill="#1F2529">b</text>
+<text x="254.16" y="6.45" font-size="7" text-anchor="start" fill="#1F2529">Perceived opportunity</text>
+<text x="254.16" y="15.1" font-size="6" text-anchor="start" fill="#5E6A71">among relevant, untaken actions</text>
+<line x1="247.11" y1="32" x2="247.11" y2="176" stroke="#E3E7EA" stroke-width="0.4"/>
+<line x1="345.13" y1="32" x2="345.13" y2="176" stroke="#E3E7EA" stroke-width="0.4"/>
+<line x1="296.12" y1="32" x2="296.12" y2="176" stroke="#8C9BA5" stroke-width="0.6" stroke-dasharray="2 2"/>
+<circle cx="310.34" cy="49" r="1.35" fill="#A9B4BB"/>
+<circle cx="286.33" cy="49" r="1.35" fill="#A9B4BB"/>
+<circle cx="295.74" cy="49" r="1.35" fill="#A9B4BB"/>
+<circle cx="291" cy="49" r="1.35" fill="#A9B4BB"/>
+<circle cx="282.33" cy="49" r="1.35" fill="#A9B4BB"/>
+<circle cx="286.24" cy="49" r="1.35" fill="#A9B4BB"/>
+<line x1="282.94" y1="49" x2="295.39" y2="49" stroke="#1B4F72" stroke-width="0.8"/>
+<circle cx="289.16" cy="49" r="2.2" fill="#1B4F72"/>
+<circle cx="278.78" cy="62" r="1.35" fill="#A9B4BB"/>
+<circle cx="295.04" cy="62" r="1.35" fill="#A9B4BB"/>
+<circle cx="286.25" cy="62" r="1.35" fill="#A9B4BB"/>
+<circle cx="279.69" cy="62" r="1.35" fill="#A9B4BB"/>
+<circle cx="285.7" cy="62" r="1.35" fill="#A9B4BB"/>
+<circle cx="289.73" cy="62" r="1.35" fill="#A9B4BB"/>
+<line x1="282.44" y1="62" x2="294.15" y2="62" stroke="#1B4F72" stroke-width="0.8"/>
+<circle cx="288.29" cy="62" r="2.2" fill="#1B4F72"/>
+<circle cx="300.32" cy="75" r="1.35" fill="#A9B4BB"/>
+<circle cx="320.73" cy="75" r="1.35" fill="#A9B4BB"/>
+<circle cx="337.35" cy="75" r="1.35" fill="#A9B4BB"/>
+<circle cx="333.98" cy="75" r="1.35" fill="#A9B4BB"/>
+<circle cx="334.89" cy="75" r="1.35" fill="#A9B4BB"/>
+<circle cx="336.16" cy="75" r="1.35" fill="#A9B4BB"/>
+<line x1="314.22" y1="75" x2="338.02" y2="75" stroke="#1B4F72" stroke-width="0.8"/>
+<circle cx="326.12" cy="75" r="2.2" fill="#1B4F72"/>
+<circle cx="358.19" cy="104" r="1.35" fill="#A9B4BB"/>
+<circle cx="351.15" cy="104" r="1.35" fill="#A9B4BB"/>
+<circle cx="364.14" cy="104" r="1.35" fill="#A9B4BB"/>
+<circle cx="356.98" cy="104" r="1.35" fill="#A9B4BB"/>
+<circle cx="357.6" cy="104" r="1.35" fill="#A9B4BB"/>
+<circle cx="360.37" cy="104" r="1.35" fill="#A9B4BB"/>
+<line x1="353.85" y1="104" x2="358.71" y2="104" stroke="#1B4F72" stroke-width="0.8"/>
+<circle cx="356.28" cy="104" r="2.2" fill="#1B4F72"/>
+<circle cx="318.64" cy="117" r="1.35" fill="#A9B4BB"/>
+<circle cx="335.56" cy="117" r="1.35" fill="#A9B4BB"/>
+<circle cx="357.88" cy="117" r="1.35" fill="#A9B4BB"/>
+<circle cx="341.47" cy="117" r="1.35" fill="#A9B4BB"/>
+<circle cx="339.96" cy="117" r="1.35" fill="#A9B4BB"/>
+<circle cx="360.8" cy="117" r="1.35" fill="#A9B4BB"/>
+<line x1="334.88" y1="117" x2="345.12" y2="117" stroke="#1B4F72" stroke-width="0.8"/>
+<circle cx="340" cy="117" r="2.2" fill="#1B4F72"/>
+<circle cx="302.11" cy="130" r="1.35" fill="#A9B4BB"/>
+<circle cx="300.12" cy="130" r="1.35" fill="#A9B4BB"/>
+<circle cx="307.09" cy="130" r="1.35" fill="#A9B4BB"/>
+<circle cx="305.26" cy="130" r="1.35" fill="#A9B4BB"/>
+<circle cx="305.18" cy="130" r="1.35" fill="#A9B4BB"/>
+<circle cx="303.29" cy="130" r="1.35" fill="#A9B4BB"/>
+<line x1="297.17" y1="130" x2="308.79" y2="130" stroke="#1B4F72" stroke-width="0.8"/>
+<circle cx="302.98" cy="130" r="2.2" fill="#1B4F72"/>
+<circle cx="311.06" cy="143" r="1.35" fill="#A9B4BB"/>
+<circle cx="318.62" cy="143" r="1.35" fill="#A9B4BB"/>
+<circle cx="325.69" cy="143" r="1.35" fill="#A9B4BB"/>
+<circle cx="311.06" cy="143" r="1.35" fill="#A9B4BB"/>
+<circle cx="315.51" cy="143" r="1.35" fill="#A9B4BB"/>
+<circle cx="330.93" cy="143" r="1.35" fill="#A9B4BB"/>
+<line x1="312.91" y1="143" x2="324.18" y2="143" stroke="#1B4F72" stroke-width="0.8"/>
+<circle cx="318.55" cy="143" r="2.2" fill="#1B4F72"/>
+<circle cx="292.43" cy="156" r="1.35" fill="#A9B4BB"/>
+<circle cx="266.79" cy="156" r="1.35" fill="#A9B4BB"/>
+<circle cx="263.79" cy="156" r="1.35" fill="#A9B4BB"/>
+<circle cx="260.61" cy="156" r="1.35" fill="#A9B4BB"/>
+<circle cx="260.15" cy="156" r="1.35" fill="#A9B4BB"/>
+<circle cx="253.97" cy="156" r="1.35" fill="#A9B4BB"/>
+<line x1="260.36" y1="156" x2="271.43" y2="156" stroke="#1B4F72" stroke-width="0.8"/>
+<circle cx="265.9" cy="156" r="2.2" fill="#1B4F72"/>
+<circle cx="298.82" cy="169" r="1.35" fill="#A9B4BB"/>
+<circle cx="270.85" cy="169" r="1.35" fill="#A9B4BB"/>
+<circle cx="262.77" cy="169" r="1.35" fill="#A9B4BB"/>
+<circle cx="261.23" cy="169" r="1.35" fill="#A9B4BB"/>
+<circle cx="256" cy="169" r="1.35" fill="#A9B4BB"/>
+<circle cx="265.34" cy="169" r="1.35" fill="#A9B4BB"/>
+<line x1="262.52" y1="169" x2="274.1" y2="169" stroke="#1B4F72" stroke-width="0.8"/>
+<circle cx="268.31" cy="169" r="2.2" fill="#1B4F72"/>
+<line x1="245.16" y1="178" x2="372.95" y2="178" stroke="#1F2529" stroke-width="0.5"/>
+<line x1="247.11" y1="178" x2="247.11" y2="180.5" stroke="#1F2529" stroke-width="0.5"/>
+<text x="247.11" y="188.1" font-size="6" text-anchor="middle" fill="#1F2529">−0.5</text>
+<line x1="296.12" y1="178" x2="296.12" y2="180.5" stroke="#1F2529" stroke-width="0.5"/>
+<text x="296.12" y="188.1" font-size="6" text-anchor="middle" fill="#1F2529">0</text>
+<line x1="345.13" y1="178" x2="345.13" y2="180.5" stroke="#1F2529" stroke-width="0.5"/>
+<text x="345.13" y="188.1" font-size="6" text-anchor="middle" fill="#1F2529">0.5</text>
+<text x="309.05" y="199.45" font-size="7" text-anchor="middle" fill="#1F2529">Points (1-5 scale)</text>
+<text x="386.95" y="6.8" font-size="8" text-anchor="start" font-weight="bold" fill="#1F2529">c</text>
+<text x="395.95" y="6.45" font-size="7" text-anchor="start" fill="#1F2529">Motivation</text>
+<text x="395.95" y="15.1" font-size="6" text-anchor="start" fill="#5E6A71">among relevant, untaken actions</text>
+<line x1="405.44" y1="32" x2="405.44" y2="176" stroke="#E3E7EA" stroke-width="0.4"/>
+<line x1="463.06" y1="32" x2="463.06" y2="176" stroke="#E3E7EA" stroke-width="0.4"/>
+<line x1="491.87" y1="32" x2="491.87" y2="176" stroke="#E3E7EA" stroke-width="0.4"/>
+<line x1="434.25" y1="32" x2="434.25" y2="176" stroke="#8C9BA5" stroke-width="0.6" stroke-dasharray="2 2"/>
+<circle cx="436.36" cy="49" r="1.35" fill="#A9B4BB"/>
+<circle cx="422.06" cy="49" r="1.35" fill="#A9B4BB"/>
+<circle cx="424.09" cy="49" r="1.35" fill="#A9B4BB"/>
+<circle cx="424.81" cy="49" r="1.35" fill="#A9B4BB"/>
+<circle cx="418.33" cy="49" r="1.35" fill="#A9B4BB"/>
+<circle cx="425.33" cy="49" r="1.35" fill="#A9B4BB"/>
+<line x1="418.12" y1="49" x2="428.9" y2="49" stroke="#1B4F72" stroke-width="0.8"/>
+<circle cx="423.51" cy="49" r="2.2" fill="#1B4F72"/>
+<circle cx="421.38" cy="62" r="1.35" fill="#A9B4BB"/>
+<circle cx="434.03" cy="62" r="1.35" fill="#A9B4BB"/>
+<circle cx="423.09" cy="62" r="1.35" fill="#A9B4BB"/>
+<circle cx="417.48" cy="62" r="1.35" fill="#A9B4BB"/>
+<circle cx="427.31" cy="62" r="1.35" fill="#A9B4BB"/>
+<circle cx="426.08" cy="62" r="1.35" fill="#A9B4BB"/>
+<line x1="422.81" y1="62" x2="432.92" y2="62" stroke="#1B4F72" stroke-width="0.8"/>
+<circle cx="427.87" cy="62" r="2.2" fill="#1B4F72"/>
+<circle cx="444.99" cy="75" r="1.35" fill="#A9B4BB"/>
+<circle cx="456.46" cy="75" r="1.35" fill="#A9B4BB"/>
+<circle cx="473.86" cy="75" r="1.35" fill="#A9B4BB"/>
+<circle cx="474.77" cy="75" r="1.35" fill="#A9B4BB"/>
+<circle cx="473.74" cy="75" r="1.35" fill="#A9B4BB"/>
+<circle cx="480.88" cy="75" r="1.35" fill="#A9B4BB"/>
+<line x1="454.96" y1="75" x2="475.55" y2="75" stroke="#1B4F72" stroke-width="0.8"/>
+<circle cx="465.25" cy="75" r="2.2" fill="#1B4F72"/>
+<circle cx="505.93" cy="104" r="1.35" fill="#A9B4BB"/>
+<circle cx="492.08" cy="104" r="1.35" fill="#A9B4BB"/>
+<circle cx="491.3" cy="104" r="1.35" fill="#A9B4BB"/>
+<circle cx="485.96" cy="104" r="1.35" fill="#A9B4BB"/>
+<circle cx="484.17" cy="104" r="1.35" fill="#A9B4BB"/>
+<circle cx="487.46" cy="104" r="1.35" fill="#A9B4BB"/>
+<line x1="488.85" y1="104" x2="492.4" y2="104" stroke="#1B4F72" stroke-width="0.8"/>
+<circle cx="490.62" cy="104" r="2.2" fill="#1B4F72"/>
+<circle cx="468.1" cy="117" r="1.35" fill="#A9B4BB"/>
+<circle cx="473.08" cy="117" r="1.35" fill="#A9B4BB"/>
+<circle cx="486.74" cy="117" r="1.35" fill="#A9B4BB"/>
+<circle cx="475.06" cy="117" r="1.35" fill="#A9B4BB"/>
+<circle cx="472.62" cy="117" r="1.35" fill="#A9B4BB"/>
+<circle cx="490.09" cy="117" r="1.35" fill="#A9B4BB"/>
+<line x1="471.41" y1="117" x2="479.99" y2="117" stroke="#1B4F72" stroke-width="0.8"/>
+<circle cx="475.7" cy="117" r="2.2" fill="#1B4F72"/>
+<circle cx="440.19" cy="130" r="1.35" fill="#A9B4BB"/>
+<circle cx="437.4" cy="130" r="1.35" fill="#A9B4BB"/>
+<circle cx="436.4" cy="130" r="1.35" fill="#A9B4BB"/>
+<circle cx="435.7" cy="130" r="1.35" fill="#A9B4BB"/>
+<circle cx="440.49" cy="130" r="1.35" fill="#A9B4BB"/>
+<circle cx="438.64" cy="130" r="1.35" fill="#A9B4BB"/>
+<line x1="433.53" y1="130" x2="443.57" y2="130" stroke="#1B4F72" stroke-width="0.8"/>
+<circle cx="438.55" cy="130" r="2.2" fill="#1B4F72"/>
+<circle cx="454.38" cy="143" r="1.35" fill="#A9B4BB"/>
+<circle cx="458.74" cy="143" r="1.35" fill="#A9B4BB"/>
+<circle cx="460.32" cy="143" r="1.35" fill="#A9B4BB"/>
+<circle cx="450.35" cy="143" r="1.35" fill="#A9B4BB"/>
+<circle cx="452.28" cy="143" r="1.35" fill="#A9B4BB"/>
+<circle cx="462.52" cy="143" r="1.35" fill="#A9B4BB"/>
+<line x1="451.77" y1="143" x2="461.41" y2="143" stroke="#1B4F72" stroke-width="0.8"/>
+<circle cx="456.59" cy="143" r="2.2" fill="#1B4F72"/>
+<circle cx="428.5" cy="156" r="1.35" fill="#A9B4BB"/>
+<circle cx="409.44" cy="156" r="1.35" fill="#A9B4BB"/>
+<circle cx="407.31" cy="156" r="1.35" fill="#A9B4BB"/>
+<circle cx="404.54" cy="156" r="1.35" fill="#A9B4BB"/>
+<circle cx="405.81" cy="156" r="1.35" fill="#A9B4BB"/>
+<circle cx="401.27" cy="156" r="1.35" fill="#A9B4BB"/>
+<line x1="404.48" y1="156" x2="414.1" y2="156" stroke="#1B4F72" stroke-width="0.8"/>
+<circle cx="409.29" cy="156" r="2.2" fill="#1B4F72"/>
+<circle cx="419.49" cy="169" r="1.35" fill="#A9B4BB"/>
+<circle cx="403.71" cy="169" r="1.35" fill="#A9B4BB"/>
+<circle cx="398.32" cy="169" r="1.35" fill="#A9B4BB"/>
+<circle cx="396.22" cy="169" r="1.35" fill="#A9B4BB"/>
+<circle cx="395.76" cy="169" r="1.35" fill="#A9B4BB"/>
+<circle cx="403.1" cy="169" r="1.35" fill="#A9B4BB"/>
+<line x1="397.71" y1="169" x2="407.34" y2="169" stroke="#1B4F72" stroke-width="0.8"/>
+<circle cx="402.52" cy="169" r="2.2" fill="#1B4F72"/>
+<line x1="386.95" y1="178" x2="514.74" y2="178" stroke="#1F2529" stroke-width="0.5"/>
+<line x1="405.44" y1="178" x2="405.44" y2="180.5" stroke="#1F2529" stroke-width="0.5"/>
+<text x="405.44" y="188.1" font-size="6" text-anchor="middle" fill="#1F2529">−0.5</text>
+<line x1="434.25" y1="178" x2="434.25" y2="180.5" stroke="#1F2529" stroke-width="0.5"/>
+<text x="434.25" y="188.1" font-size="6" text-anchor="middle" fill="#1F2529">0</text>
+<line x1="463.06" y1="178" x2="463.06" y2="180.5" stroke="#1F2529" stroke-width="0.5"/>
+<text x="463.06" y="188.1" font-size="6" text-anchor="middle" fill="#1F2529">0.5</text>
+<line x1="491.87" y1="178" x2="491.87" y2="180.5" stroke="#1F2529" stroke-width="0.5"/>
+<text x="491.87" y="188.1" font-size="6" text-anchor="middle" fill="#1F2529">1</text>
+<text x="450.84" y="199.45" font-size="7" text-anchor="middle" fill="#1F2529">Points (1-7 scale)</text>
+</g>
+</svg>
+

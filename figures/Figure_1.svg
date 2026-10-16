@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="183mm" height="146.4mm" viewBox="0 0 518.74 415">
+<title>Figure 1. Opportunity space for personal climate action</title>
+<rect x="0" y="0" width="518.74" height="415" fill="#FFFFFF"/>
+<g font-family="Arial, Helvetica, 'Liberation Sans', sans-serif" fill="#1F2529">
+<text x="0" y="8.8" font-size="8" text-anchor="start" font-weight="bold" fill="#1F2529">a</text>
+<rect x="30" y="9" width="6" height="6" fill="#7D8D98"/>
+<text x="39" y="14.45" font-size="7" text-anchor="start" fill="#1F2529">Opportunity space</text>
+<line x1="30" y1="112" x2="178.91" y2="112" stroke="#E3E7EA" stroke-width="0.4"/>
+<text x="26" y="114.1" font-size="6" text-anchor="end" fill="#1F2529">0</text>
+<line x1="30" y1="82" x2="178.91" y2="82" stroke="#E3E7EA" stroke-width="0.4"/>
+<text x="26" y="84.1" font-size="6" text-anchor="end" fill="#1F2529">10</text>
+<line x1="30" y1="52" x2="178.91" y2="52" stroke="#E3E7EA" stroke-width="0.4"/>
+<text x="26" y="54.1" font-size="6" text-anchor="end" fill="#1F2529">20</text>
+<line x1="30" y1="22" x2="178.91" y2="22" stroke="#E3E7EA" stroke-width="0.4"/>
+<text x="26" y="24.1" font-size="6" text-anchor="end" fill="#1F2529">30</text>
+<rect x="30.94" y="109.92" width="5.96" height="2.08" fill="#7D8D98"/>
+<rect x="38.78" y="111.7" width="5.96" height="0.3" fill="#7D8D98"/>
+<rect x="46.62" y="111.11" width="5.96" height="0.89" fill="#7D8D98"/>
+<rect x="54.45" y="109.92" width="5.96" height="2.08" fill="#7D8D98"/>
+<rect x="62.29" y="110.52" width="5.96" height="1.48" fill="#7D8D98"/>
+<rect x="70.13" y="111.11" width="5.96" height="0.89" fill="#7D8D98"/>
+<rect x="77.97" y="110.52" width="5.96" height="1.48" fill="#7D8D98"/>
+<rect x="85.8" y="108.15" width="5.96" height="3.85" fill="#7D8D98"/>
+<rect x="93.64" y="108.15" width="5.96" height="3.85" fill="#7D8D98"/>
+<rect x="101.48" y="107.55" width="5.96" height="4.45" fill="#7D8D98"/>
+<rect x="109.32" y="105.48" width="5.96" height="6.52" fill="#7D8D98"/>
+<rect x="117.15" y="103.4" width="5.96" height="8.6" fill="#7D8D98"/>
+<rect x="124.99" y="102.81" width="5.96" height="9.19" fill="#7D8D98"/>
+<rect x="132.83" y="96.88" width="5.96" height="15.12" fill="#7D8D98"/>
+<rect x="140.67" y="81.76" width="5.96" height="30.24" fill="#7D8D98"/>
+<rect x="148.5" y="71.39" width="5.96" height="40.61" fill="#7D8D98"/>
+<rect x="156.34" y="59.53" width="5.96" height="52.47" fill="#7D8D98"/>
+<rect x="164.18" y="78.21" width="5.96" height="33.79" fill="#7D8D98"/>
+<rect x="172.02" y="29.89" width="5.96" height="82.11" fill="#7D8D98"/>
+<line x1="30" y1="112" x2="178.91" y2="112" stroke="#1F2529" stroke-width="0.5"/>
+<line x1="33.92" y1="112" x2="33.92" y2="114.5" stroke="#1F2529" stroke-width="0.5"/>
+<text x="33.92" y="122.1" font-size="6" text-anchor="middle" fill="#1F2529">0</text>
+<line x1="80.94" y1="112" x2="80.94" y2="114.5" stroke="#1F2529" stroke-width="0.5"/>
+<text x="80.94" y="122.1" font-size="6" text-anchor="middle" fill="#1F2529">6</text>
+<line x1="127.97" y1="112" x2="127.97" y2="114.5" stroke="#1F2529" stroke-width="0.5"/>
+<text x="127.97" y="122.1" font-size="6" text-anchor="middle" fill="#1F2529">12</text>
+<line x1="174.99" y1="112" x2="174.99" y2="114.5" stroke="#1F2529" stroke-width="0.5"/>
+<text x="174.99" y="122.1" font-size="6" text-anchor="middle" fill="#1F2529">18</text>
+<rect x="196.91" y="9" width="6" height="6" fill="#1B4F72"/>
+<text x="205.91" y="14.45" font-size="7" text-anchor="start" fill="#1F2529">Already taken</text>
+<line x1="196.91" y1="112" x2="345.83" y2="112" stroke="#E3E7EA" stroke-width="0.4"/>
+<line x1="196.91" y1="82" x2="345.83" y2="82" stroke="#E3E7EA" stroke-width="0.4"/>
+<line x1="196.91" y1="52" x2="345.83" y2="52" stroke="#E3E7EA" stroke-width="0.4"/>
+<line x1="196.91" y1="22" x2="345.83" y2="22" stroke="#E3E7EA" stroke-width="0.4"/>
+<rect x="197.85" y="68.42" width="5.96" height="43.58" fill="#1B4F72"/>
+<rect x="205.69" y="67.83" width="5.96" height="44.17" fill="#1B4F72"/>
+<rect x="213.53" y="74.35" width="5.96" height="37.65" fill="#1B4F72"/>
+<rect x="221.37" y="72.57" width="5.96" height="39.43" fill="#1B4F72"/>
+<rect x="229.2" y="81.47" width="5.96" height="30.53" fill="#1B4F72"/>
+<rect x="237.04" y="86.8" width="5.96" height="25.2" fill="#1B4F72"/>
+<rect x="244.88" y="95.7" width="5.96" height="16.3" fill="#1B4F72"/>
+<rect x="252.72" y="93.62" width="5.96" height="18.38" fill="#1B4F72"/>
+<rect x="260.55" y="97.77" width="5.96" height="14.23" fill="#1B4F72"/>
+<rect x="268.39" y="101.62" width="5.96" height="10.38" fill="#1B4F72"/>
+<rect x="276.23" y="104" width="5.96" height="8" fill="#1B4F72"/>
+<rect x="284.07" y="108.15" width="5.96" height="3.85" fill="#1B4F72"/>
+<rect x="291.9" y="107.55" width="5.96" height="4.45" fill="#1B4F72"/>
+<rect x="299.74" y="109.92" width="5.96" height="2.08" fill="#1B4F72"/>
+<rect x="307.58" y="111.7" width="5.96" height="0.3" fill="#1B4F72"/>
+<rect x="315.42" y="111.11" width="5.96" height="0.89" fill="#1B4F72"/>
+<rect x="323.25" y="112" width="5.96" height="0" fill="#1B4F72"/>
+<rect x="331.09" y="111.41" width="5.96" height="0.59" fill="#1B4F72"/>
+<rect x="338.93" y="112" width="5.96" height="0" fill="#1B4F72"/>
+<line x1="196.91" y1="112" x2="345.83" y2="112" stroke="#1F2529" stroke-width="0.5"/>
+<line x1="200.83" y1="112" x2="200.83" y2="114.5" stroke="#1F2529" stroke-width="0.5"/>
+<text x="200.83" y="122.1" font-size="6" text-anchor="middle" fill="#1F2529">0</text>
+<line x1="247.86" y1="112" x2="247.86" y2="114.5" stroke="#1F2529" stroke-width="0.5"/>
+<text x="247.86" y="122.1" font-size="6" text-anchor="middle" fill="#1F2529">6</text>
+<line x1="294.88" y1="112" x2="294.88" y2="114.5" stroke="#1F2529" stroke-width="0.5"/>
+<text x="294.88" y="122.1" font-size="6" text-anchor="middle" fill="#1F2529">12</text>
+<line x1="341.91" y1="112" x2="341.91" y2="114.5" stroke="#1F2529" stroke-width="0.5"/>
+<text x="341.91" y="122.1" font-size="6" text-anchor="middle" fill="#1F2529">18</text>
+<rect x="363.83" y="9" width="6" height="6" fill="#5FA8A0"/>
+<text x="372.83" y="14.45" font-size="7" text-anchor="start" fill="#1F2529">Remaining opportunity</text>
+<line x1="363.83" y1="112" x2="512.74" y2="112" stroke="#E3E7EA" stroke-width="0.4"/>
+<line x1="363.83" y1="82" x2="512.74" y2="82" stroke="#E3E7EA" stroke-width="0.4"/>
+<line x1="363.83" y1="52" x2="512.74" y2="52" stroke="#E3E7EA" stroke-width="0.4"/>
+<line x1="363.83" y1="22" x2="512.74" y2="22" stroke="#E3E7EA" stroke-width="0.4"/>
+<rect x="364.77" y="105.77" width="5.96" height="6.23" fill="#5FA8A0"/>
+<rect x="372.6" y="109.33" width="5.96" height="2.67" fill="#5FA8A0"/>
+<rect x="380.44" y="107.85" width="5.96" height="4.15" fill="#5FA8A0"/>
+<rect x="388.28" y="102.51" width="5.96" height="9.49" fill="#5FA8A0"/>
+<rect x="396.12" y="102.81" width="5.96" height="9.19" fill="#5FA8A0"/>
+<rect x="403.96" y="102.51" width="5.96" height="9.49" fill="#5FA8A0"/>
+<rect x="411.79" y="102.51" width="5.96" height="9.49" fill="#5FA8A0"/>
+<rect x="419.63" y="98.96" width="5.96" height="13.04" fill="#5FA8A0"/>
+<rect x="427.47" y="95.1" width="5.96" height="16.9" fill="#5FA8A0"/>
+<rect x="435.31" y="95.4" width="5.96" height="16.6" fill="#5FA8A0"/>
+<rect x="443.14" y="90.66" width="5.96" height="21.34" fill="#5FA8A0"/>
+<rect x="450.98" y="91.25" width="5.96" height="20.75" fill="#5FA8A0"/>
+<rect x="458.82" y="88.28" width="5.96" height="23.72" fill="#5FA8A0"/>
+<rect x="466.66" y="84.73" width="5.96" height="27.27" fill="#5FA8A0"/>
+<rect x="474.49" y="87.69" width="5.96" height="24.31" fill="#5FA8A0"/>
+<rect x="482.33" y="81.47" width="5.96" height="30.53" fill="#5FA8A0"/>
+<rect x="490.17" y="93.32" width="5.96" height="18.68" fill="#5FA8A0"/>
+<rect x="498.01" y="93.32" width="5.96" height="18.68" fill="#5FA8A0"/>
+<rect x="505.84" y="94.51" width="5.96" height="17.49" fill="#5FA8A0"/>
+<line x1="363.83" y1="112" x2="512.74" y2="112" stroke="#1F2529" stroke-width="0.5"/>
+<line x1="367.75" y1="112" x2="367.75" y2="114.5" stroke="#1F2529" stroke-width="0.5"/>
+<text x="367.75" y="122.1" font-size="6" text-anchor="middle" fill="#1F2529">0</text>
+<line x1="414.77" y1="112" x2="414.77" y2="114.5" stroke="#1F2529" stroke-width="0.5"/>
+<text x="414.77" y="122.1" font-size="6" text-anchor="middle" fill="#1F2529">6</text>
+<line x1="461.8" y1="112" x2="461.8" y2="114.5" stroke="#1F2529" stroke-width="0.5"/>
+<text x="461.8" y="122.1" font-size="6" text-anchor="middle" fill="#1F2529">12</text>
+<line x1="508.82" y1="112" x2="508.82" y2="114.5" stroke="#1F2529" stroke-width="0.5"/>
+<text x="508.82" y="122.1" font-size="6" text-anchor="middle" fill="#1F2529">18</text>
+<text x="8" y="69.45" font-size="7" text-anchor="middle" fill="#1F2529" transform="rotate(-90 8 67)">Respondents (%)</text>
+<text x="271.37" y="133.45" font-size="7" text-anchor="middle" fill="#1F2529">Number of actions</text>
+<text x="0" y="152.8" font-size="8" text-anchor="start" font-weight="bold" fill="#1F2529">b</text>
+<rect x="164.85" y="147" width="6" height="6" fill="#1B4F72"/>
+<text x="173.85" y="152.45" font-size="7" text-anchor="start" fill="#1F2529">Already taken</text>
+<rect x="228.65" y="147" width="6" height="6" fill="#5FA8A0"/>
+<text x="237.65" y="152.45" font-size="7" text-anchor="start" fill="#1F2529">Relevant, not yet taken</text>
+<rect x="321.25" y="147" width="6" height="6" fill="#E4E6E8"/>
+<text x="330.25" y="152.45" font-size="7" text-anchor="start" fill="#1F2529">Not relevant</text>
+<text x="0" y="174.25" font-size="7" text-anchor="start" font-weight="bold" fill="#1F2529">Consumer</text>
+<text x="0" y="182.65" font-size="7" text-anchor="start" font-weight="bold" fill="#1F2529">(technology)</text>
+<text x="0" y="229.75" font-size="7" text-anchor="start" font-weight="bold" fill="#1F2529">Consumer</text>
+<text x="0" y="238.15" font-size="7" text-anchor="start" font-weight="bold" fill="#1F2529">(curtailment)</text>
+<text x="0" y="279.75" font-size="7" text-anchor="start" font-weight="bold" fill="#1F2529">Organisational</text>
+<text x="0" y="288.15" font-size="7" text-anchor="start" font-weight="bold" fill="#1F2529">participant</text>
+<text x="0" y="306.45" font-size="7" text-anchor="start" font-weight="bold" fill="#1F2529">Investor</text>
+<text x="0" y="339.95" font-size="7" text-anchor="start" font-weight="bold" fill="#1F2529">Citizen</text>
+<text x="0" y="374.75" font-size="7" text-anchor="start" font-weight="bold" fill="#1F2529">Social</text>
+<text x="0" y="383.15" font-size="7" text-anchor="start" font-weight="bold" fill="#1F2529">role model</text>
+<text x="158.85" y="167.45" font-size="7" text-anchor="end" fill="#1F2529">Buy an electric car</text>
+<rect x="164.85" y="161.1" width="121.69" height="7.8" fill="#1B4F72"/>
+<text x="225.7" y="167.1" font-size="6" text-anchor="middle" fill="#FFFFFF">35</text>
+<rect x="286.54" y="161.1" width="159.16" height="7.8" fill="#5FA8A0"/>
+<text x="366.13" y="167.1" font-size="6" text-anchor="middle" fill="#1F2529">46</text>
+<rect x="445.71" y="161.1" width="67.03" height="7.8" fill="#E4E6E8"/>
+<text x="479.22" y="167.1" font-size="6" text-anchor="middle" fill="#5E6A71">19</text>
+<text x="158.85" y="178.45" font-size="7" text-anchor="end" fill="#1F2529">Improve home energy efficiency</text>
+<rect x="164.85" y="172.1" width="134.41" height="7.8" fill="#1B4F72"/>
+<text x="232.06" y="178.1" font-size="6" text-anchor="middle" fill="#FFFFFF">39</text>
+<rect x="299.26" y="172.1" width="145.41" height="7.8" fill="#5FA8A0"/>
+<text x="371.97" y="178.1" font-size="6" text-anchor="middle" fill="#1F2529">42</text>
+<rect x="444.68" y="172.1" width="68.06" height="7.8" fill="#E4E6E8"/>
+<text x="478.71" y="178.1" font-size="6" text-anchor="middle" fill="#5E6A71">20</text>
+<text x="158.85" y="189.45" font-size="7" text-anchor="end" fill="#1F2529">Install solar panels</text>
+<rect x="164.85" y="183.1" width="33.34" height="7.8" fill="#1B4F72"/>
+<text x="181.53" y="189.1" font-size="6" text-anchor="middle" fill="#FFFFFF">10</text>
+<rect x="198.2" y="183.1" width="166.38" height="7.8" fill="#5FA8A0"/>
+<text x="281.39" y="189.1" font-size="6" text-anchor="middle" fill="#1F2529">48</text>
+<rect x="364.58" y="183.1" width="148.16" height="7.8" fill="#E4E6E8"/>
+<text x="438.66" y="189.1" font-size="6" text-anchor="middle" fill="#5E6A71">43</text>
+<text x="158.85" y="206.45" font-size="7" text-anchor="end" fill="#1F2529">Take fewer flights</text>
+<rect x="164.85" y="200.1" width="104.5" height="7.8" fill="#1B4F72"/>
+<text x="217.1" y="206.1" font-size="6" text-anchor="middle" fill="#FFFFFF">30</text>
+<rect x="269.36" y="200.1" width="202.82" height="7.8" fill="#5FA8A0"/>
+<text x="370.77" y="206.1" font-size="6" text-anchor="middle" fill="#1F2529">58</text>
+<rect x="472.18" y="200.1" width="40.56" height="7.8" fill="#E4E6E8"/>
+<text x="492.46" y="206.1" font-size="6" text-anchor="middle" fill="#5E6A71">12</text>
+<text x="158.85" y="217.45" font-size="7" text-anchor="end" fill="#1F2529">Eat less red meat</text>
+<rect x="164.85" y="211.1" width="132" height="7.8" fill="#1B4F72"/>
+<text x="230.86" y="217.1" font-size="6" text-anchor="middle" fill="#FFFFFF">38</text>
+<rect x="296.86" y="211.1" width="198.69" height="7.8" fill="#5FA8A0"/>
+<text x="396.2" y="217.1" font-size="6" text-anchor="middle" fill="#1F2529">57</text>
+<rect x="495.55" y="211.1" width="17.19" height="7.8" fill="#E4E6E8"/>
+<text x="504.15" y="217.1" font-size="6" text-anchor="middle" fill="#5E6A71">5</text>
+<text x="158.85" y="228.45" font-size="7" text-anchor="end" fill="#1F2529">Use public transport</text>
+<rect x="164.85" y="222.1" width="64.28" height="7.8" fill="#1B4F72"/>
+<text x="196.99" y="228.1" font-size="6" text-anchor="middle" fill="#FFFFFF">18</text>
+<rect x="229.14" y="222.1" width="250.26" height="7.8" fill="#5FA8A0"/>
+<text x="354.27" y="228.1" font-size="6" text-anchor="middle" fill="#1F2529">72</text>
+<rect x="479.4" y="222.1" width="33.34" height="7.8" fill="#E4E6E8"/>
+<text x="496.07" y="228.1" font-size="6" text-anchor="middle" fill="#5E6A71">10</text>
+<text x="158.85" y="239.45" font-size="7" text-anchor="end" fill="#1F2529">Eat less white meat</text>
+<rect x="164.85" y="233.1" width="65.66" height="7.8" fill="#1B4F72"/>
+<text x="197.68" y="239.1" font-size="6" text-anchor="middle" fill="#FFFFFF">19</text>
+<rect x="230.51" y="233.1" width="264.7" height="7.8" fill="#5FA8A0"/>
+<text x="362.86" y="239.1" font-size="6" text-anchor="middle" fill="#1F2529">76</text>
+<rect x="495.21" y="233.1" width="17.53" height="7.8" fill="#E4E6E8"/>
+<text x="503.97" y="239.1" font-size="6" text-anchor="middle" fill="#5E6A71">5</text>
+<text x="158.85" y="250.45" font-size="7" text-anchor="end" fill="#1F2529">Drive fewer kilometres</text>
+<rect x="164.85" y="244.1" width="71.85" height="7.8" fill="#1B4F72"/>
+<text x="200.78" y="250.1" font-size="6" text-anchor="middle" fill="#FFFFFF">21</text>
+<rect x="236.7" y="244.1" width="240.63" height="7.8" fill="#5FA8A0"/>
+<text x="357.02" y="250.1" font-size="6" text-anchor="middle" fill="#1F2529">69</text>
+<rect x="477.33" y="244.1" width="35.41" height="7.8" fill="#E4E6E8"/>
+<text x="495.04" y="250.1" font-size="6" text-anchor="middle" fill="#5E6A71">10</text>
+<text x="158.85" y="261.45" font-size="7" text-anchor="end" fill="#1F2529">Reduce home heating/cooling</text>
+<rect x="164.85" y="255.1" width="128.91" height="7.8" fill="#1B4F72"/>
+<text x="229.31" y="261.1" font-size="6" text-anchor="middle" fill="#FFFFFF">37</text>
+<rect x="293.76" y="255.1" width="191.48" height="7.8" fill="#5FA8A0"/>
+<text x="389.5" y="261.1" font-size="6" text-anchor="middle" fill="#1F2529">55</text>
+<rect x="485.24" y="255.1" width="27.5" height="7.8" fill="#E4E6E8"/>
+<text x="498.99" y="261.1" font-size="6" text-anchor="middle" fill="#5E6A71">8</text>
+<text x="158.85" y="278.45" font-size="7" text-anchor="end" fill="#1F2529">Support initiatives at work</text>
+<rect x="164.85" y="272.1" width="40.91" height="7.8" fill="#1B4F72"/>
+<text x="185.31" y="278.1" font-size="6" text-anchor="middle" fill="#FFFFFF">12</text>
+<rect x="205.76" y="272.1" width="144.38" height="7.8" fill="#5FA8A0"/>
+<text x="277.95" y="278.1" font-size="6" text-anchor="middle" fill="#1F2529">42</text>
+<rect x="350.14" y="272.1" width="162.6" height="7.8" fill="#E4E6E8"/>
+<text x="431.44" y="278.1" font-size="6" text-anchor="middle" fill="#5E6A71">47</text>
+<text x="158.85" y="289.45" font-size="7" text-anchor="end" fill="#1F2529">Promote change in organisation</text>
+<rect x="164.85" y="283.1" width="31.97" height="7.8" fill="#1B4F72"/>
+<text x="180.84" y="289.1" font-size="6" text-anchor="middle" fill="#FFFFFF">9</text>
+<rect x="196.82" y="283.1" width="171.54" height="7.8" fill="#5FA8A0"/>
+<text x="282.59" y="289.1" font-size="6" text-anchor="middle" fill="#1F2529">49</text>
+<rect x="368.36" y="283.1" width="144.38" height="7.8" fill="#E4E6E8"/>
+<text x="440.55" y="289.1" font-size="6" text-anchor="middle" fill="#5E6A71">42</text>
+<text x="158.85" y="306.45" font-size="7" text-anchor="end" fill="#1F2529">Move investments/pension</text>
+<rect x="164.85" y="300.1" width="52.94" height="7.8" fill="#1B4F72"/>
+<text x="191.32" y="306.1" font-size="6" text-anchor="middle" fill="#FFFFFF">15</text>
+<rect x="217.79" y="300.1" width="221.04" height="7.8" fill="#5FA8A0"/>
+<text x="328.31" y="306.1" font-size="6" text-anchor="middle" fill="#1F2529">64</text>
+<rect x="438.83" y="300.1" width="73.91" height="7.8" fill="#E4E6E8"/>
+<text x="475.79" y="306.1" font-size="6" text-anchor="middle" fill="#5E6A71">21</text>
+<text x="158.85" y="323.45" font-size="7" text-anchor="end" fill="#1F2529">Donate to climate organisations</text>
+<rect x="164.85" y="317.1" width="44.69" height="7.8" fill="#1B4F72"/>
+<text x="187.2" y="323.1" font-size="6" text-anchor="middle" fill="#FFFFFF">13</text>
+<rect x="209.54" y="317.1" width="260.23" height="7.8" fill="#5FA8A0"/>
+<text x="339.66" y="323.1" font-size="6" text-anchor="middle" fill="#1F2529">75</text>
+<rect x="469.77" y="317.1" width="42.97" height="7.8" fill="#E4E6E8"/>
+<text x="491.26" y="323.1" font-size="6" text-anchor="middle" fill="#5E6A71">12</text>
+<text x="158.85" y="334.45" font-size="7" text-anchor="end" fill="#1F2529">Vote for pro-climate politicians</text>
+<rect x="164.85" y="328.1" width="94.53" height="7.8" fill="#1B4F72"/>
+<text x="212.12" y="334.1" font-size="6" text-anchor="middle" fill="#FFFFFF">27</text>
+<rect x="259.39" y="328.1" width="240.29" height="7.8" fill="#5FA8A0"/>
+<text x="379.53" y="334.1" font-size="6" text-anchor="middle" fill="#1F2529">69</text>
+<rect x="499.68" y="328.1" width="13.06" height="7.8" fill="#E4E6E8"/>
+<text x="506.21" y="334.1" font-size="6" text-anchor="middle" fill="#5E6A71">4</text>
+<text x="158.85" y="345.45" font-size="7" text-anchor="end" fill="#1F2529">Sign petitions/contact politicians</text>
+<rect x="164.85" y="339.1" width="38.5" height="7.8" fill="#1B4F72"/>
+<text x="184.1" y="345.1" font-size="6" text-anchor="middle" fill="#FFFFFF">11</text>
+<rect x="203.35" y="339.1" width="274.32" height="7.8" fill="#5FA8A0"/>
+<text x="340.52" y="345.1" font-size="6" text-anchor="middle" fill="#1F2529">79</text>
+<rect x="477.68" y="339.1" width="35.06" height="7.8" fill="#E4E6E8"/>
+<text x="495.21" y="345.1" font-size="6" text-anchor="middle" fill="#5E6A71">10</text>
+<text x="158.85" y="356.45" font-size="7" text-anchor="end" fill="#1F2529">Participate in demonstrations</text>
+<rect x="164.85" y="350.1" width="7.91" height="7.8" fill="#1B4F72"/>
+<text x="168.81" y="356.1" font-size="6" text-anchor="middle" fill="#FFFFFF">2</text>
+<rect x="172.76" y="350.1" width="283.26" height="7.8" fill="#5FA8A0"/>
+<text x="314.39" y="356.1" font-size="6" text-anchor="middle" fill="#1F2529">81</text>
+<rect x="456.02" y="350.1" width="56.72" height="7.8" fill="#E4E6E8"/>
+<text x="484.38" y="356.1" font-size="6" text-anchor="middle" fill="#5E6A71">16</text>
+<text x="158.85" y="373.45" font-size="7" text-anchor="end" fill="#1F2529">Be a climate role model</text>
+<rect x="164.85" y="367.1" width="60.85" height="7.8" fill="#1B4F72"/>
+<text x="195.28" y="373.1" font-size="6" text-anchor="middle" fill="#FFFFFF">17</text>
+<rect x="225.7" y="367.1" width="262.29" height="7.8" fill="#5FA8A0"/>
+<text x="356.84" y="373.1" font-size="6" text-anchor="middle" fill="#1F2529">75</text>
+<rect x="487.99" y="367.1" width="24.75" height="7.8" fill="#E4E6E8"/>
+<text x="500.36" y="373.1" font-size="6" text-anchor="middle" fill="#5E6A71">7</text>
+<text x="158.85" y="384.45" font-size="7" text-anchor="end" fill="#1F2529">Talk with family/friends</text>
+<rect x="164.85" y="378.1" width="104.5" height="7.8" fill="#1B4F72"/>
+<text x="217.1" y="384.1" font-size="6" text-anchor="middle" fill="#FFFFFF">30</text>
+<rect x="269.36" y="378.1" width="227.23" height="7.8" fill="#5FA8A0"/>
+<text x="382.97" y="384.1" font-size="6" text-anchor="middle" fill="#1F2529">65</text>
+<rect x="496.58" y="378.1" width="16.16" height="7.8" fill="#E4E6E8"/>
+<text x="504.66" y="384.1" font-size="6" text-anchor="middle" fill="#5E6A71">5</text>
+<line x1="164.85" y1="390" x2="512.74" y2="390" stroke="#1F2529" stroke-width="0.5"/>
+<line x1="164.85" y1="390" x2="164.85" y2="392.5" stroke="#1F2529" stroke-width="0.5"/>
+<text x="164.85" y="400.1" font-size="6" text-anchor="middle" fill="#1F2529">0</text>
+<line x1="251.82" y1="390" x2="251.82" y2="392.5" stroke="#1F2529" stroke-width="0.5"/>
+<text x="251.82" y="400.1" font-size="6" text-anchor="middle" fill="#1F2529">25</text>
+<line x1="338.8" y1="390" x2="338.8" y2="392.5" stroke="#1F2529" stroke-width="0.5"/>
+<text x="338.8" y="400.1" font-size="6" text-anchor="middle" fill="#1F2529">50</text>
+<line x1="425.77" y1="390" x2="425.77" y2="392.5" stroke="#1F2529" stroke-width="0.5"/>
+<text x="425.77" y="400.1" font-size="6" text-anchor="middle" fill="#1F2529">75</text>
+<line x1="512.74" y1="390" x2="512.74" y2="392.5" stroke="#1F2529" stroke-width="0.5"/>
+<text x="512.74" y="400.1" font-size="6" text-anchor="middle" fill="#1F2529">100</text>
+<text x="338.8" y="411.45" font-size="7" text-anchor="middle" fill="#1F2529">Respondents (%)</text>
+</g>
+</svg>
+

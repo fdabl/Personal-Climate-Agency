@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="183mm" height="113.59mm" viewBox="0 0 518.74 322">
+<title>Figure 2. Socioeconomic differences in the opportunity space</title>
+<rect x="0" y="0" width="518.74" height="322" fill="#FFFFFF"/>
+<g font-family="Arial, Helvetica, 'Liberation Sans', sans-serif" fill="#1F2529">
+<text x="0" y="8.8" font-size="8" text-anchor="start" font-weight="bold" fill="#1F2529">a</text>
+<text x="9" y="8.45" font-size="7" text-anchor="start" fill="#1F2529">Opportunity space and actions taken, by personal annual income</text>
+<line x1="24" y1="128" x2="506.74" y2="128" stroke="#1F2529" stroke-width="0.5"/>
+<text x="20" y="130.1" font-size="6" text-anchor="end" fill="#1F2529">0</text>
+<line x1="24" y1="93.33" x2="506.74" y2="93.33" stroke="#E3E7EA" stroke-width="0.4"/>
+<text x="20" y="95.43" font-size="6" text-anchor="end" fill="#1F2529">6</text>
+<line x1="24" y1="58.67" x2="506.74" y2="58.67" stroke="#E3E7EA" stroke-width="0.4"/>
+<text x="20" y="60.77" font-size="6" text-anchor="end" fill="#1F2529">12</text>
+<line x1="24" y1="24" x2="506.74" y2="24" stroke="#E3E7EA" stroke-width="0.4"/>
+<text x="20" y="26.1" font-size="6" text-anchor="end" fill="#1F2529">18</text>
+<path d="M30,47.32L82.3,51.62L134.61,45.63L186.91,42.43L239.22,36.17L291.52,36.92L343.83,32.26L396.13,29.11L448.44,28.81L500.74,29.78L500.74,109.44L448.44,109.7L396.13,107.35L343.83,107.08L291.52,104.83L239.22,103.04L186.91,106.32L134.61,100.44L82.3,105.31L30,108.98Z" fill="#D3E8E4"/>
+<path d="M30,47.32L82.3,51.62L134.61,45.63L186.91,42.43L239.22,36.17L291.52,36.92L343.83,32.26L396.13,29.11L448.44,28.81L500.74,29.78" fill="none" stroke="#7D8D98" stroke-width="1.2" stroke-linejoin="round"/>
+<line x1="30" y1="52.18" x2="30" y2="42.47" stroke="#7D8D98" stroke-width="0.9"/>
+<circle cx="30" cy="47.32" r="2.1" fill="#7D8D98"/>
+<line x1="82.3" y1="55.16" x2="82.3" y2="48.08" stroke="#7D8D98" stroke-width="0.9"/>
+<circle cx="82.3" cy="51.62" r="2.1" fill="#7D8D98"/>
+<line x1="134.61" y1="48.83" x2="134.61" y2="42.43" stroke="#7D8D98" stroke-width="0.9"/>
+<circle cx="134.61" cy="45.63" r="2.1" fill="#7D8D98"/>
+<line x1="186.91" y1="45.45" x2="186.91" y2="39.41" stroke="#7D8D98" stroke-width="0.9"/>
+<circle cx="186.91" cy="42.43" r="2.1" fill="#7D8D98"/>
+<line x1="239.22" y1="38.6" x2="239.22" y2="33.74" stroke="#7D8D98" stroke-width="0.9"/>
+<circle cx="239.22" cy="36.17" r="2.1" fill="#7D8D98"/>
+<line x1="291.52" y1="40.3" x2="291.52" y2="33.55" stroke="#7D8D98" stroke-width="0.9"/>
+<circle cx="291.52" cy="36.92" r="2.1" fill="#7D8D98"/>
+<line x1="343.83" y1="35.15" x2="343.83" y2="29.38" stroke="#7D8D98" stroke-width="0.9"/>
+<circle cx="343.83" cy="32.26" r="2.1" fill="#7D8D98"/>
+<line x1="396.13" y1="31.34" x2="396.13" y2="26.89" stroke="#7D8D98" stroke-width="0.9"/>
+<circle cx="396.13" cy="29.11" r="2.1" fill="#7D8D98"/>
+<line x1="448.44" y1="31.6" x2="448.44" y2="26.03" stroke="#7D8D98" stroke-width="0.9"/>
+<circle cx="448.44" cy="28.81" r="2.1" fill="#7D8D98"/>
+<line x1="500.74" y1="32.47" x2="500.74" y2="27.08" stroke="#7D8D98" stroke-width="0.9"/>
+<circle cx="500.74" cy="29.78" r="2.1" fill="#7D8D98"/>
+<path d="M30,108.98L82.3,105.31L134.61,100.44L186.91,106.32L239.22,103.04L291.52,104.83L343.83,107.08L396.13,107.35L448.44,109.7L500.74,109.44" fill="none" stroke="#1B4F72" stroke-width="1.2" stroke-linejoin="round"/>
+<line x1="30" y1="113.32" x2="30" y2="104.63" stroke="#1B4F72" stroke-width="0.9"/>
+<circle cx="30" cy="108.98" r="2.1" fill="#1B4F72"/>
+<line x1="82.3" y1="108.52" x2="82.3" y2="102.1" stroke="#1B4F72" stroke-width="0.9"/>
+<circle cx="82.3" cy="105.31" r="2.1" fill="#1B4F72"/>
+<line x1="134.61" y1="104.38" x2="134.61" y2="96.5" stroke="#1B4F72" stroke-width="0.9"/>
+<circle cx="134.61" cy="100.44" r="2.1" fill="#1B4F72"/>
+<line x1="186.91" y1="109.68" x2="186.91" y2="102.96" stroke="#1B4F72" stroke-width="0.9"/>
+<circle cx="186.91" cy="106.32" r="2.1" fill="#1B4F72"/>
+<line x1="239.22" y1="106.71" x2="239.22" y2="99.37" stroke="#1B4F72" stroke-width="0.9"/>
+<circle cx="239.22" cy="103.04" r="2.1" fill="#1B4F72"/>
+<line x1="291.52" y1="108.59" x2="291.52" y2="101.06" stroke="#1B4F72" stroke-width="0.9"/>
+<circle cx="291.52" cy="104.83" r="2.1" fill="#1B4F72"/>
+<line x1="343.83" y1="110.4" x2="343.83" y2="103.77" stroke="#1B4F72" stroke-width="0.9"/>
+<circle cx="343.83" cy="107.08" r="2.1" fill="#1B4F72"/>
+<line x1="396.13" y1="112.23" x2="396.13" y2="102.48" stroke="#1B4F72" stroke-width="0.9"/>
+<circle cx="396.13" cy="107.35" r="2.1" fill="#1B4F72"/>
+<line x1="448.44" y1="116.58" x2="448.44" y2="102.83" stroke="#1B4F72" stroke-width="0.9"/>
+<circle cx="448.44" cy="109.7" r="2.1" fill="#1B4F72"/>
+<line x1="500.74" y1="113.85" x2="500.74" y2="105.02" stroke="#1B4F72" stroke-width="0.9"/>
+<circle cx="500.74" cy="109.44" r="2.1" fill="#1B4F72"/>
+<text x="36" y="39.92" font-size="7" text-anchor="start" fill="#7D8D98">Opportunity space</text>
+<text x="36" y="120.77" font-size="7" text-anchor="start" fill="#1B4F72">Already taken</text>
+<text x="265.37" y="72.05" font-size="7" text-anchor="middle" fill="#3B8C81">Remaining opportunity</text>
+<line x1="30" y1="128" x2="30" y2="130.5" stroke="#1F2529" stroke-width="0.5"/>
+<text x="30" y="138.1" font-size="6" text-anchor="middle" fill="#1F2529">&lt;200,000</text>
+<text x="30" y="146.1" font-size="6" text-anchor="middle" fill="#5E6A71">(&lt;€25,000)</text>
+<line x1="82.3" y1="128" x2="82.3" y2="130.5" stroke="#1F2529" stroke-width="0.5"/>
+<text x="82.3" y="138.1" font-size="6" text-anchor="middle" fill="#1F2529">200,000</text>
+<text x="82.3" y="146.1" font-size="6" text-anchor="middle" fill="#5E6A71">(€25,000)</text>
+<line x1="134.61" y1="128" x2="134.61" y2="130.5" stroke="#1F2529" stroke-width="0.5"/>
+<text x="134.61" y="138.1" font-size="6" text-anchor="middle" fill="#1F2529">300,000</text>
+<text x="134.61" y="146.1" font-size="6" text-anchor="middle" fill="#5E6A71">(€40,000)</text>
+<line x1="186.91" y1="128" x2="186.91" y2="130.5" stroke="#1F2529" stroke-width="0.5"/>
+<text x="186.91" y="138.1" font-size="6" text-anchor="middle" fill="#1F2529">400,000</text>
+<text x="186.91" y="146.1" font-size="6" text-anchor="middle" fill="#5E6A71">(€55,000)</text>
+<line x1="239.22" y1="128" x2="239.22" y2="130.5" stroke="#1F2529" stroke-width="0.5"/>
+<text x="239.22" y="138.1" font-size="6" text-anchor="middle" fill="#1F2529">500,000</text>
+<text x="239.22" y="146.1" font-size="6" text-anchor="middle" fill="#5E6A71">(€65,000)</text>
+<line x1="291.52" y1="128" x2="291.52" y2="130.5" stroke="#1F2529" stroke-width="0.5"/>
+<text x="291.52" y="138.1" font-size="6" text-anchor="middle" fill="#1F2529">650,000</text>
+<text x="291.52" y="146.1" font-size="6" text-anchor="middle" fill="#5E6A71">(€85,000)</text>
+<line x1="343.83" y1="128" x2="343.83" y2="130.5" stroke="#1F2529" stroke-width="0.5"/>
+<text x="343.83" y="138.1" font-size="6" text-anchor="middle" fill="#1F2529">800,000</text>
+<text x="343.83" y="146.1" font-size="6" text-anchor="middle" fill="#5E6A71">(€105,000)</text>
+<line x1="396.13" y1="128" x2="396.13" y2="130.5" stroke="#1F2529" stroke-width="0.5"/>
+<text x="396.13" y="138.1" font-size="6" text-anchor="middle" fill="#1F2529">1,000,000</text>
+<text x="396.13" y="146.1" font-size="6" text-anchor="middle" fill="#5E6A71">(€135,000)</text>
+<line x1="448.44" y1="128" x2="448.44" y2="130.5" stroke="#1F2529" stroke-width="0.5"/>
+<text x="448.44" y="138.1" font-size="6" text-anchor="middle" fill="#1F2529">1,250,000</text>
+<text x="448.44" y="146.1" font-size="6" text-anchor="middle" fill="#5E6A71">(€170,000)</text>
+<line x1="500.74" y1="128" x2="500.74" y2="130.5" stroke="#1F2529" stroke-width="0.5"/>
+<text x="500.74" y="138.1" font-size="6" text-anchor="middle" fill="#1F2529">1,500,000+</text>
+<text x="500.74" y="146.1" font-size="6" text-anchor="middle" fill="#5E6A71">(€200,000+)</text>
+<text x="8" y="78.45" font-size="7" text-anchor="middle" fill="#1F2529" transform="rotate(-90 8 76)">Actions</text>
+<text x="265.37" y="158.45" font-size="7" text-anchor="middle" fill="#1F2529">Personal annual income</text>
+<text x="64.98" y="225.45" font-size="7" text-anchor="end" fill="#1F2529">Technology adoption</text>
+<text x="64.98" y="238.45" font-size="7" text-anchor="end" fill="#1F2529">Curtailment</text>
+<text x="64.98" y="251.45" font-size="7" text-anchor="end" fill="#1F2529">Organisational</text>
+<text x="64.98" y="264.45" font-size="7" text-anchor="end" fill="#1F2529">Investor</text>
+<text x="64.98" y="277.45" font-size="7" text-anchor="end" fill="#1F2529">Citizen</text>
+<text x="64.98" y="290.45" font-size="7" text-anchor="end" fill="#1F2529">Social role model</text>
+<text x="74.98" y="182.8" font-size="8" text-anchor="start" font-weight="bold" fill="#1F2529">b</text>
+<text x="83.98" y="182.45" font-size="7" text-anchor="start" fill="#1F2529">Income (per SD)</text>
+<rect x="74.98" y="189" width="135.92" height="22" fill="#F1F3F4" rx="1.5"/>
+<text x="78.98" y="198.45" font-size="7" text-anchor="start" font-weight="bold" fill="#1F2529">Overall: +0.78 actions</text>
+<text x="78.98" y="206.6" font-size="6" text-anchor="start" fill="#5E6A71">95% CI +0.59 to +0.97</text>
+<line x1="123.53" y1="216" x2="123.53" y2="295" stroke="#E3E7EA" stroke-width="0.4"/>
+<line x1="167.21" y1="216" x2="167.21" y2="295" stroke="#E3E7EA" stroke-width="0.4"/>
+<line x1="210.9" y1="216" x2="210.9" y2="295" stroke="#E3E7EA" stroke-width="0.4"/>
+<line x1="79.84" y1="216" x2="79.84" y2="295" stroke="#8C9BA5" stroke-width="0.6" stroke-dasharray="2 2"/>
+<line x1="133.86" y1="223" x2="180.77" y2="223" stroke="#1B4F72" stroke-width="0.9"/>
+<circle cx="157.32" cy="223" r="2.3" fill="#1B4F72"/>
+<line x1="92.45" y1="236" x2="112.33" y2="236" stroke="#1B4F72" stroke-width="0.9"/>
+<circle cx="102.39" cy="236" r="2.3" fill="#1B4F72"/>
+<line x1="102.95" y1="249" x2="145.46" y2="249" stroke="#1B4F72" stroke-width="0.9"/>
+<circle cx="124.21" cy="249" r="2.3" fill="#1B4F72"/>
+<line x1="118.58" y1="262" x2="201.29" y2="262" stroke="#1B4F72" stroke-width="0.9"/>
+<circle cx="159.94" cy="262" r="2.3" fill="#1B4F72"/>
+<line x1="96.29" y1="275" x2="122.22" y2="275" stroke="#1B4F72" stroke-width="0.9"/>
+<circle cx="109.25" cy="275" r="2.3" fill="#1B4F72"/>
+<line x1="81.7" y1="288" x2="104.44" y2="288" stroke="#1B4F72" stroke-width="0.9"/>
+<circle cx="93.07" cy="288" r="2.3" fill="#1B4F72"/>
+<line x1="74.98" y1="297" x2="210.9" y2="297" stroke="#1F2529" stroke-width="0.5"/>
+<line x1="79.84" y1="297" x2="79.84" y2="299.5" stroke="#1F2529" stroke-width="0.5"/>
+<text x="79.84" y="307.1" font-size="6" text-anchor="middle" fill="#1F2529">0</text>
+<line x1="123.53" y1="297" x2="123.53" y2="299.5" stroke="#1F2529" stroke-width="0.5"/>
+<text x="123.53" y="307.1" font-size="6" text-anchor="middle" fill="#1F2529">5</text>
+<line x1="167.21" y1="297" x2="167.21" y2="299.5" stroke="#1F2529" stroke-width="0.5"/>
+<text x="167.21" y="307.1" font-size="6" text-anchor="middle" fill="#1F2529">10</text>
+<line x1="210.9" y1="297" x2="210.9" y2="299.5" stroke="#1F2529" stroke-width="0.5"/>
+<text x="210.9" y="307.1" font-size="6" text-anchor="middle" fill="#1F2529">15</text>
+<text x="142.94" y="318.45" font-size="7" text-anchor="middle" fill="#1F2529">Percentage-point difference</text>
+<text x="226.9" y="182.8" font-size="8" text-anchor="start" font-weight="bold" fill="#1F2529">c</text>
+<text x="235.9" y="182.45" font-size="7" text-anchor="start" fill="#1F2529">Employed vs not employed</text>
+<rect x="226.9" y="189" width="135.92" height="22" fill="#F1F3F4" rx="1.5"/>
+<text x="230.9" y="198.45" font-size="7" text-anchor="start" font-weight="bold" fill="#1F2529">Overall: +1.43 actions</text>
+<text x="230.9" y="206.6" font-size="6" text-anchor="start" fill="#5E6A71">95% CI +0.96 to +1.89</text>
+<line x1="262.61" y1="216" x2="262.61" y2="295" stroke="#E3E7EA" stroke-width="0.4"/>
+<line x1="289.83" y1="216" x2="289.83" y2="295" stroke="#E3E7EA" stroke-width="0.4"/>
+<line x1="317.05" y1="216" x2="317.05" y2="295" stroke="#E3E7EA" stroke-width="0.4"/>
+<line x1="344.27" y1="216" x2="344.27" y2="295" stroke="#E3E7EA" stroke-width="0.4"/>
+<line x1="235.39" y1="216" x2="235.39" y2="295" stroke="#8C9BA5" stroke-width="0.6" stroke-dasharray="2 2"/>
+<line x1="245.4" y1="223" x2="274.88" y2="223" stroke="#1B4F72" stroke-width="0.9"/>
+<circle cx="260.14" cy="223" r="2.3" fill="#1B4F72"/>
+<line x1="238.33" y1="236" x2="251.42" y2="236" stroke="#1B4F72" stroke-width="0.9"/>
+<circle cx="244.88" cy="236" r="2.3" fill="#1B4F72"/>
+<line x1="316.81" y1="249" x2="357.79" y2="249" stroke="#1B4F72" stroke-width="0.9"/>
+<circle cx="337.3" cy="249" r="2.3" fill="#1B4F72"/>
+<line x1="236.15" y1="262" x2="275.46" y2="262" stroke="#1B4F72" stroke-width="0.9"/>
+<circle cx="255.8" cy="262" r="2.3" fill="#1B4F72"/>
+<line x1="231.93" y1="275" x2="247.86" y2="275" stroke="#1B4F72" stroke-width="0.9"/>
+<circle cx="239.9" cy="275" r="2.3" fill="#1B4F72"/>
+<line x1="235.18" y1="288" x2="251" y2="288" stroke="#1B4F72" stroke-width="0.9"/>
+<circle cx="243.09" cy="288" r="2.3" fill="#1B4F72"/>
+<line x1="226.9" y1="297" x2="362.82" y2="297" stroke="#1F2529" stroke-width="0.5"/>
+<line x1="235.39" y1="297" x2="235.39" y2="299.5" stroke="#1F2529" stroke-width="0.5"/>
+<text x="235.39" y="307.1" font-size="6" text-anchor="middle" fill="#1F2529">0</text>
+<line x1="262.61" y1="297" x2="262.61" y2="299.5" stroke="#1F2529" stroke-width="0.5"/>
+<text x="262.61" y="307.1" font-size="6" text-anchor="middle" fill="#1F2529">10</text>
+<line x1="289.83" y1="297" x2="289.83" y2="299.5" stroke="#1F2529" stroke-width="0.5"/>
+<text x="289.83" y="307.1" font-size="6" text-anchor="middle" fill="#1F2529">20</text>
+<line x1="317.05" y1="297" x2="317.05" y2="299.5" stroke="#1F2529" stroke-width="0.5"/>
+<text x="317.05" y="307.1" font-size="6" text-anchor="middle" fill="#1F2529">30</text>
+<line x1="344.27" y1="297" x2="344.27" y2="299.5" stroke="#1F2529" stroke-width="0.5"/>
+<text x="344.27" y="307.1" font-size="6" text-anchor="middle" fill="#1F2529">40</text>
+<text x="294.86" y="318.45" font-size="7" text-anchor="middle" fill="#1F2529">Percentage-point difference</text>
+<text x="378.82" y="182.8" font-size="8" text-anchor="start" font-weight="bold" fill="#1F2529">d</text>
+<text x="387.82" y="182.45" font-size="7" text-anchor="start" fill="#1F2529">Age (per SD)</text>
+<rect x="378.82" y="189" width="135.92" height="22" fill="#F1F3F4" rx="1.5"/>
+<text x="382.82" y="198.45" font-size="7" text-anchor="start" font-weight="bold" fill="#1F2529">Overall: −0.78 actions</text>
+<text x="382.82" y="206.6" font-size="6" text-anchor="start" fill="#5E6A71">95% CI −1.02 to −0.54</text>
+<line x1="389.51" y1="216" x2="389.51" y2="295" stroke="#E3E7EA" stroke-width="0.4"/>
+<line x1="426.31" y1="216" x2="426.31" y2="295" stroke="#E3E7EA" stroke-width="0.4"/>
+<line x1="463.1" y1="216" x2="463.1" y2="295" stroke="#E3E7EA" stroke-width="0.4"/>
+<line x1="499.89" y1="216" x2="499.89" y2="295" stroke="#8C9BA5" stroke-width="0.6" stroke-dasharray="2 2"/>
+<line x1="476.38" y1="223" x2="509.71" y2="223" stroke="#1B4F72" stroke-width="0.9"/>
+<circle cx="493.05" cy="223" r="2.3" fill="#1B4F72"/>
+<line x1="479.15" y1="236" x2="497.2" y2="236" stroke="#1B4F72" stroke-width="0.9"/>
+<circle cx="488.18" cy="236" r="2.3" fill="#1B4F72"/>
+<line x1="383.85" y1="249" x2="416.5" y2="249" stroke="#1B4F72" stroke-width="0.9"/>
+<circle cx="400.18" cy="249" r="2.3" fill="#1B4F72"/>
+<line x1="413.22" y1="262" x2="474.65" y2="262" stroke="#1B4F72" stroke-width="0.9"/>
+<circle cx="443.94" cy="262" r="2.3" fill="#1B4F72"/>
+<line x1="437.19" y1="275" x2="473.88" y2="275" stroke="#1B4F72" stroke-width="0.9"/>
+<circle cx="455.53" cy="275" r="2.3" fill="#1B4F72"/>
+<line x1="455.77" y1="288" x2="493.11" y2="288" stroke="#1B4F72" stroke-width="0.9"/>
+<circle cx="474.44" cy="288" r="2.3" fill="#1B4F72"/>
+<line x1="378.82" y1="297" x2="514.74" y2="297" stroke="#1F2529" stroke-width="0.5"/>
+<line x1="389.51" y1="297" x2="389.51" y2="299.5" stroke="#1F2529" stroke-width="0.5"/>
+<text x="389.51" y="307.1" font-size="6" text-anchor="middle" fill="#1F2529">−15</text>
+<line x1="426.31" y1="297" x2="426.31" y2="299.5" stroke="#1F2529" stroke-width="0.5"/>
+<text x="426.31" y="307.1" font-size="6" text-anchor="middle" fill="#1F2529">−10</text>
+<line x1="463.1" y1="297" x2="463.1" y2="299.5" stroke="#1F2529" stroke-width="0.5"/>
+<text x="463.1" y="307.1" font-size="6" text-anchor="middle" fill="#1F2529">−5</text>
+<line x1="499.89" y1="297" x2="499.89" y2="299.5" stroke="#1F2529" stroke-width="0.5"/>
+<text x="499.89" y="307.1" font-size="6" text-anchor="middle" fill="#1F2529">0</text>
+<text x="446.78" y="318.45" font-size="7" text-anchor="middle" fill="#1F2529">Percentage-point difference</text>
+</g>
+</svg>
+

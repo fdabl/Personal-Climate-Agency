@@ -1,0 +1,183 @@
+construct,term,predictor,level,estimate,low,high,unit
+Utilisation,income_filled_z,Income,Overall,-1.9452745715381574,-3.4338184636986657,-0.4567306793776491,Percentage points
+Utilisation,income_filled_z,Income,Consumer (technology),3.77058827006017,1.1205643939405392,6.420612146179801,Percentage points
+Utilisation,income_filled_z,Income,Consumer (curtailment),-3.977644148632723,-5.882976601432258,-2.072311695833188,Percentage points
+Utilisation,income_filled_z,Income,Organisational participant,2.6957519886342367,-0.3851785771831231,5.776682554451597,Percentage points
+Utilisation,income_filled_z,Income,Investor,-3.111611894001714,-6.505105904693761,0.28188211669033447,Percentage points
+Utilisation,income_filled_z,Income,Citizen,-2.853671096952778,-4.481470506789098,-1.2258716871164583,Percentage points
+Utilisation,income_filled_z,Income,Social role model,-3.2000360850061833,-5.687928780010436,-0.7121433900019298,Percentage points
+Utilisation,age_z,Age,Overall,0.5781028665905334,-0.8584247642955882,2.0146304974766553,Percentage points
+Utilisation,age_z,Age,Consumer (technology),2.142623174945309,-0.40771073104626626,4.692957080936884,Percentage points
+Utilisation,age_z,Age,Consumer (curtailment),0.5908136816623467,-1.2300101254791556,2.411637488803849,Percentage points
+Utilisation,age_z,Age,Organisational participant,0.46231453415655704,-2.060746755777269,2.9853758240903834,Percentage points
+Utilisation,age_z,Age,Investor,3.3911410733210947,-0.38701648598701355,7.169298632629204,Percentage points
+Utilisation,age_z,Age,Citizen,-0.49747073158265137,-1.8384192142971796,0.8434777511318766,Percentage points
+Utilisation,age_z,Age,Social role model,-0.3446788887427954,-2.5468941321871132,1.8575363547015227,Percentage points
+Utilisation,gender_bin,Women vs men,Overall,8.044660344099237,4.953619235070433,11.13570145312804,Percentage points
+Utilisation,gender_bin,Women vs men,Consumer (technology),1.984345116122719,-2.9409590267268686,6.909649258972306,Percentage points
+Utilisation,gender_bin,Women vs men,Consumer (curtailment),12.469830436837213,8.298162082316876,16.641498791357552,Percentage points
+Utilisation,gender_bin,Women vs men,Organisational participant,5.396425558191834,-0.0653811680096393,10.858232284393306,Percentage points
+Utilisation,gender_bin,Women vs men,Investor,10.72639429843846,1.9374879277583148,19.515300669118606,Percentage points
+Utilisation,gender_bin,Women vs men,Citizen,5.320381101010224,1.9925060730056356,8.648256129014813,Percentage points
+Utilisation,gender_bin,Women vs men,Social role model,7.793632791197353,2.555190906687319,13.032074675707387,Percentage points
+Utilisation,conversation_z,Climate conversations,Overall,9.785991505664713,7.986099287138226,11.585883724191198,Percentage points
+Utilisation,conversation_z,Climate conversations,Consumer (technology),5.630548076965181,3.108726305823435,8.152369848106927,Percentage points
+Utilisation,conversation_z,Climate conversations,Consumer (curtailment),8.550381377111622,6.352300188172166,10.748462566051076,Percentage points
+Utilisation,conversation_z,Climate conversations,Organisational participant,10.411449704479207,5.685391761588147,15.137507647370269,Percentage points
+Utilisation,conversation_z,Climate conversations,Investor,11.075061206226698,4.567186934886816,17.58293547756658,Percentage points
+Utilisation,conversation_z,Climate conversations,Citizen,10.08425098456085,6.912774392071966,13.255727577049733,Percentage points
+Utilisation,conversation_z,Climate conversations,Social role model,16.757359656790328,12.686499472128384,20.82821984145227,Percentage points
+Utilisation,action_knowledge_z,Action knowledge,Overall,5.170983442166432,3.562390817202439,6.779576067130424,Percentage points
+Utilisation,action_knowledge_z,Action knowledge,Consumer (technology),4.143957215458337,1.6570148155014655,6.630899615415209,Percentage points
+Utilisation,action_knowledge_z,Action knowledge,Consumer (curtailment),4.810278041494129,2.811909045521392,6.808647037466867,Percentage points
+Utilisation,action_knowledge_z,Action knowledge,Organisational participant,6.286251384736373,2.6289808219316035,9.943521947541143,Percentage points
+Utilisation,action_knowledge_z,Action knowledge,Investor,5.880556032360897,1.1709895662336502,10.590122498488144,Percentage points
+Utilisation,action_knowledge_z,Action knowledge,Citizen,4.320530098920662,2.235782661796113,6.405277536045211,Percentage points
+Utilisation,action_knowledge_z,Action knowledge,Social role model,8.080221851627897,4.759414649155615,11.401029054100178,Percentage points
+Utilisation,attribution_z,Individual-attribution belief,Overall,3.9925996410143236,2.427709105517738,5.5574901765109095,Percentage points
+Utilisation,attribution_z,Individual-attribution belief,Consumer (technology),3.535337830999906,1.0317978305432431,6.038877831456569,Percentage points
+Utilisation,attribution_z,Individual-attribution belief,Consumer (curtailment),4.26799116926831,2.2773616175024642,6.258620721034156,Percentage points
+Utilisation,attribution_z,Individual-attribution belief,Organisational participant,3.9952293982078966,0.9267647195750388,7.063694076840754,Percentage points
+Utilisation,attribution_z,Individual-attribution belief,Investor,3.0768672883360555,-0.5732007397080324,6.7269353163801435,Percentage points
+Utilisation,attribution_z,Individual-attribution belief,Citizen,2.595036960612084,0.8543301779872451,4.3357437432369235,Percentage points
+Utilisation,attribution_z,Individual-attribution belief,Social role model,6.7607768153600905,3.6278291029202436,9.893724527799938,Percentage points
+Utilisation,techno_optimism_z,Techno-optimism,Overall,-4.19643863630364,-5.595982471570526,-2.7968948010367534,Percentage points
+Utilisation,techno_optimism_z,Techno-optimism,Consumer (technology),0.9136162161416437,-1.5280795703481715,3.3553120026314587,Percentage points
+Utilisation,techno_optimism_z,Techno-optimism,Consumer (curtailment),-4.821540938755662,-6.644410076322027,-2.9986718011892988,Percentage points
+Utilisation,techno_optimism_z,Techno-optimism,Organisational participant,-3.6876250824963903,-6.40078524469537,-0.9744649202974107,Percentage points
+Utilisation,techno_optimism_z,Techno-optimism,Investor,-3.4733031375391734,-6.896005385488015,-0.0506008895903326,Percentage points
+Utilisation,techno_optimism_z,Techno-optimism,Citizen,-5.246140488591737,-7.348224561516231,-3.144056415667244,Percentage points
+Utilisation,techno_optimism_z,Techno-optimism,Social role model,-6.928339274797023,-10.081966137195497,-3.7747124123985474,Percentage points
+Utilisation,political_z,Political orientation (right),Overall,-5.092578156590447,-6.5393612782850195,-3.645795034895874,Percentage points
+Utilisation,political_z,Political orientation (right),Consumer (technology),0.6295672591071698,-1.8757776960411503,3.1349122142554897,Percentage points
+Utilisation,political_z,Political orientation (right),Consumer (curtailment),-5.587303065553365,-7.462614566025018,-3.7119915650817124,Percentage points
+Utilisation,political_z,Political orientation (right),Organisational participant,-3.727033215365897,-6.4379651877831625,-1.0161012429486318,Percentage points
+Utilisation,political_z,Political orientation (right),Investor,-4.863680154809113,-8.952535182981766,-0.7748251266364602,Percentage points
+Utilisation,political_z,Political orientation (right),Citizen,-6.908610103743537,-9.463010861625456,-4.354209345861619,Percentage points
+Utilisation,political_z,Political orientation (right),Social role model,-7.7690257824060724,-11.209287672969417,-4.328763891842727,Percentage points
+Perceived opportunity,income_filled_z,Income,Overall,-0.07096370095718768,-0.1345127024738878,-0.007414699440487574,Points on 1-5 scale
+Perceived opportunity,income_filled_z,Income,Consumer (technology),0.14510574060738834,0.056469020178792434,0.23374246103598426,Points on 1-5 scale
+Perceived opportunity,income_filled_z,Income,Consumer (curtailment),-0.0999247516058567,-0.16991387692064447,-0.02993562629106894,Points on 1-5 scale
+Perceived opportunity,income_filled_z,Income,Organisational participant,-0.003890822847167026,-0.10181323778675852,0.09403159209242445,Points on 1-5 scale
+Perceived opportunity,income_filled_z,Income,Investor,-0.05224708350642491,-0.16007527174127725,0.05558110472842744,Points on 1-5 scale
+Perceived opportunity,income_filled_z,Income,Citizen,-0.14065163178742632,-0.21325216413807518,-0.06805109943677744,Points on 1-5 scale
+Perceived opportunity,income_filled_z,Income,Social role model,-0.10076214525946055,-0.1862512154852876,-0.015273075033633468,Points on 1-5 scale
+Perceived opportunity,age_z,Age,Overall,-0.0798329420936383,-0.1395971064602301,-0.02006877772704648,Points on 1-5 scale
+Perceived opportunity,age_z,Age,Consumer (technology),-0.17695835302131563,-0.26321046587175945,-0.09070624017087184,Points on 1-5 scale
+Perceived opportunity,age_z,Age,Consumer (curtailment),-0.011047892078191197,-0.07806112320288373,0.05596533904650135,Points on 1-5 scale
+Perceived opportunity,age_z,Age,Organisational participant,-0.100672374985393,-0.1951855256720909,-0.0061592242986950735,Points on 1-5 scale
+Perceived opportunity,age_z,Age,Investor,-0.16763508607065522,-0.27303494838774794,-0.06223522375356248,Points on 1-5 scale
+Perceived opportunity,age_z,Age,Citizen,-0.10634219405437009,-0.17557155114267892,-0.037112836966061255,Points on 1-5 scale
+Perceived opportunity,age_z,Age,Social role model,-0.06523295942824012,-0.14826603491210918,0.01780011605562895,Points on 1-5 scale
+Perceived opportunity,gender_bin,Women vs men,Overall,0.30611750547222105,0.1847146921788452,0.42752031876559693,Points on 1-5 scale
+Perceived opportunity,gender_bin,Women vs men,Consumer (technology),0.0428223550126039,-0.12487007818170504,0.21051478820691283,Points on 1-5 scale
+Perceived opportunity,gender_bin,Women vs men,Consumer (curtailment),0.2511108387444372,0.1162038077612835,0.3860178697275909,Points on 1-5 scale
+Perceived opportunity,gender_bin,Women vs men,Organisational participant,0.42067346885712587,0.23112172708579654,0.6102252106284551,Points on 1-5 scale
+Perceived opportunity,gender_bin,Women vs men,Investor,0.3862616022657437,0.1744470209087928,0.5980761836226945,Points on 1-5 scale
+Perceived opportunity,gender_bin,Women vs men,Citizen,0.3955835104970351,0.25636395260979605,0.5348030683842742,Points on 1-5 scale
+Perceived opportunity,gender_bin,Women vs men,Social role model,0.4084931441168491,0.2436362755549331,0.5733500126787652,Points on 1-5 scale
+Perceived opportunity,qol_expected_z,Expected quality-of-life impact,Overall,0.6138369490104645,0.589037367693746,0.6386365303271829,Points on 1-5 scale
+Perceived opportunity,qol_expected_z,Expected quality-of-life impact,Consumer (technology),0.6332373622533175,0.5747001394505726,0.6917745850560624,Points on 1-5 scale
+Perceived opportunity,qol_expected_z,Expected quality-of-life impact,Consumer (curtailment),0.5614453413225962,0.5247971564985036,0.5980935261466888,Points on 1-5 scale
+Perceived opportunity,qol_expected_z,Expected quality-of-life impact,Organisational participant,0.693946959351916,0.6219580575773063,0.7659358611265257,Points on 1-5 scale
+Perceived opportunity,qol_expected_z,Expected quality-of-life impact,Investor,0.6209460506869033,0.5366595756700443,0.7052325257037624,Points on 1-5 scale
+Perceived opportunity,qol_expected_z,Expected quality-of-life impact,Citizen,0.6273101278597063,0.5857998711083797,0.6688203846110329,Points on 1-5 scale
+Perceived opportunity,qol_expected_z,Expected quality-of-life impact,Social role model,0.655570134546761,0.5972979999249347,0.7138422691685874,Points on 1-5 scale
+Perceived opportunity,conversation_z,Climate conversations,Overall,0.44774537734022263,0.39550887371809995,0.4999818809623453,Points on 1-5 scale
+Perceived opportunity,conversation_z,Climate conversations,Consumer (technology),0.22974035313887964,0.15295174588597654,0.30652896039178273,Points on 1-5 scale
+Perceived opportunity,conversation_z,Climate conversations,Consumer (curtailment),0.40243460948606175,0.3425330168423044,0.4623362021298191,Points on 1-5 scale
+Perceived opportunity,conversation_z,Climate conversations,Organisational participant,0.6301701460213721,0.5421598261375755,0.7181804659051687,Points on 1-5 scale
+Perceived opportunity,conversation_z,Climate conversations,Investor,0.4626623516125358,0.3589143563658399,0.5664103468592318,Points on 1-5 scale
+Perceived opportunity,conversation_z,Climate conversations,Citizen,0.44727731077508226,0.3845969134946594,0.5099577080555051,Points on 1-5 scale
+Perceived opportunity,conversation_z,Climate conversations,Social role model,0.6599440919878267,0.5815988587903654,0.7382893251852879,Points on 1-5 scale
+Perceived opportunity,action_knowledge_z,Action knowledge,Overall,0.07000610262829596,0.010758173994509908,0.12925403126208201,Points on 1-5 scale
+Perceived opportunity,action_knowledge_z,Action knowledge,Consumer (technology),0.06109997497068598,-0.022119419349418384,0.14431936929079034,Points on 1-5 scale
+Perceived opportunity,action_knowledge_z,Action knowledge,Consumer (curtailment),0.040774786452426603,-0.025294230695566647,0.10684380360041985,Points on 1-5 scale
+Perceived opportunity,action_knowledge_z,Action knowledge,Organisational participant,0.11188398335712568,0.01933912821338067,0.20442883850087068,Points on 1-5 scale
+Perceived opportunity,action_knowledge_z,Action knowledge,Investor,0.09320744024991377,-0.013455746954625286,0.19987062745445283,Points on 1-5 scale
+Perceived opportunity,action_knowledge_z,Action knowledge,Citizen,0.0924613590501481,0.023428499187956642,0.16149421891233956,Points on 1-5 scale
+Perceived opportunity,action_knowledge_z,Action knowledge,Social role model,0.07312390034339457,-0.010453843539211971,0.1567016442260011,Points on 1-5 scale
+Perceived opportunity,attribution_z,Individual-attribution belief,Overall,0.22881552768036395,0.17135514818824463,0.28627590717248325,Points on 1-5 scale
+Perceived opportunity,attribution_z,Individual-attribution belief,Consumer (technology),0.1523838910492647,0.07093403237014435,0.23383374972838505,Points on 1-5 scale
+Perceived opportunity,attribution_z,Individual-attribution belief,Consumer (curtailment),0.22961209924535186,0.16499528781229791,0.29422891067840584,Points on 1-5 scale
+Perceived opportunity,attribution_z,Individual-attribution belief,Organisational participant,0.30173148891737606,0.212001521378817,0.3914614564559351,Points on 1-5 scale
+Perceived opportunity,attribution_z,Individual-attribution belief,Investor,0.15247509244237625,0.04815963621106495,0.25679054867368756,Points on 1-5 scale
+Perceived opportunity,attribution_z,Individual-attribution belief,Citizen,0.19780388403162466,0.13059581119507158,0.26501195686817774,Points on 1-5 scale
+Perceived opportunity,attribution_z,Individual-attribution belief,Social role model,0.3551306711227492,0.27308550144986604,0.4371758407956324,Points on 1-5 scale
+Perceived opportunity,techno_optimism_z,Techno-optimism,Overall,-0.30835638106351476,-0.36482052614474614,-0.2518922359822834,Points on 1-5 scale
+Perceived opportunity,techno_optimism_z,Techno-optimism,Consumer (technology),-0.03761170564121662,-0.11679505465338165,0.041571643370948416,Points on 1-5 scale
+Perceived opportunity,techno_optimism_z,Techno-optimism,Consumer (curtailment),-0.29928358464283605,-0.36267593790473723,-0.23589123138093487,Points on 1-5 scale
+Perceived opportunity,techno_optimism_z,Techno-optimism,Organisational participant,-0.3298480331191444,-0.4211042823325967,-0.23859178390569208,Points on 1-5 scale
+Perceived opportunity,techno_optimism_z,Techno-optimism,Investor,-0.36226512577793496,-0.46470414958319683,-0.2598261019726731,Points on 1-5 scale
+Perceived opportunity,techno_optimism_z,Techno-optimism,Citizen,-0.36693617131942574,-0.4333412118823459,-0.30053113075650556,Points on 1-5 scale
+Perceived opportunity,techno_optimism_z,Techno-optimism,Social role model,-0.4300318223778407,-0.5115222326557928,-0.34854141209988865,Points on 1-5 scale
+Perceived opportunity,political_z,Political orientation (right),Overall,-0.28369967633184195,-0.3427784869481658,-0.22462086571551812,Points on 1-5 scale
+Perceived opportunity,political_z,Political orientation (right),Consumer (technology),0.027505007253403768,-0.05573309670362257,0.11074311121043011,Points on 1-5 scale
+Perceived opportunity,political_z,Political orientation (right),Consumer (curtailment),-0.25778240055262314,-0.3240038958280425,-0.19156090527720376,Points on 1-5 scale
+Perceived opportunity,political_z,Political orientation (right),Organisational participant,-0.34029569829289347,-0.43350227175766387,-0.24708912482812306,Points on 1-5 scale
+Perceived opportunity,political_z,Political orientation (right),Investor,-0.35595156775587533,-0.4639518550555275,-0.24795128045622317,Points on 1-5 scale
+Perceived opportunity,political_z,Political orientation (right),Citizen,-0.4093481644092495,-0.4786202301048863,-0.34007609871361266,Points on 1-5 scale
+Perceived opportunity,political_z,Political orientation (right),Social role model,-0.31398672203029543,-0.39815193034186847,-0.2298215137187224,Points on 1-5 scale
+Motivation,income_filled_z,Income,Overall,-0.18637777434878833,-0.2799658405991937,-0.09278970809838291,Points on 1-7 scale
+Motivation,income_filled_z,Income,Consumer (technology),0.03673627678886182,-0.08628541901939416,0.1597579725971178,Points on 1-7 scale
+Motivation,income_filled_z,Income,Consumer (curtailment),-0.21149699938572689,-0.3124636240420139,-0.11053037472943988,Points on 1-7 scale
+Motivation,income_filled_z,Income,Organisational participant,-0.17621344407686032,-0.3104768820856477,-0.04195000606807292,Points on 1-7 scale
+Motivation,income_filled_z,Income,Investor,-0.16385138035673363,-0.3101989905370719,-0.017503770176395345,Points on 1-7 scale
+Motivation,income_filled_z,Income,Citizen,-0.27624062526144755,-0.3802184705226118,-0.17226278000028328,Points on 1-7 scale
+Motivation,income_filled_z,Income,Social role model,-0.1548225377134029,-0.27404915172974215,-0.03559592369706367,Points on 1-7 scale
+Motivation,age_z,Age,Overall,-0.11076409477372513,-0.19855113960787868,-0.022977049939571573,Points on 1-7 scale
+Motivation,age_z,Age,Consumer (technology),-0.22327772236064525,-0.3422439116641843,-0.1043115330571062,Points on 1-7 scale
+Motivation,age_z,Age,Consumer (curtailment),-0.003700973012843512,-0.09981347141388376,0.09241152538819673,Points on 1-7 scale
+Motivation,age_z,Age,Organisational participant,-0.1936821679182869,-0.3226819152803929,-0.0646824205561809,Points on 1-7 scale
+Motivation,age_z,Age,Investor,-0.29091659390315666,-0.43321106509825946,-0.14862212270805383,Points on 1-7 scale
+Motivation,age_z,Age,Citizen,-0.12032105132016857,-0.21898127419350033,-0.021660828446836797,Points on 1-7 scale
+Motivation,age_z,Age,Social role model,-0.14181871604654425,-0.2568783870878394,-0.026759045005249116,Points on 1-7 scale
+Motivation,gender_bin,Women vs men,Overall,0.5380932812429964,0.35941855606066064,0.7167680064253321,Points on 1-7 scale
+Motivation,gender_bin,Women vs men,Consumer (technology),0.18644944887872222,-0.04633173773981247,0.4192306354972569,Points on 1-7 scale
+Motivation,gender_bin,Women vs men,Consumer (curtailment),0.38553449768857995,0.19142438082095328,0.5796446145562066,Points on 1-7 scale
+Motivation,gender_bin,Women vs men,Organisational participant,0.6873807847860274,0.4281796898200281,0.9465818797520267,Points on 1-7 scale
+Motivation,gender_bin,Women vs men,Investor,0.7032130390527,0.4168852167268678,0.9895408613785324,Points on 1-7 scale
+Motivation,gender_bin,Women vs men,Citizen,0.685343550239526,0.4862832724197702,0.8844038280592817,Points on 1-7 scale
+Motivation,gender_bin,Women vs men,Social role model,0.8092126352798529,0.5798684768202076,1.0385567937394982,Points on 1-7 scale
+Motivation,qol_expected_z,Expected quality-of-life impact,Overall,0.9783469332062805,0.9475542470596009,1.00913961935296,Points on 1-7 scale
+Motivation,qol_expected_z,Expected quality-of-life impact,Consumer (technology),1.2439557120287073,1.1723329839465102,1.3155784401109043,Points on 1-7 scale
+Motivation,qol_expected_z,Expected quality-of-life impact,Consumer (curtailment),1.0036319162871585,0.9586505844329194,1.0486132481413977,Points on 1-7 scale
+Motivation,qol_expected_z,Expected quality-of-life impact,Organisational participant,0.9900296786044752,0.9018512017544945,1.0782081554544558,Points on 1-7 scale
+Motivation,qol_expected_z,Expected quality-of-life impact,Investor,0.8973754869290678,0.7943199868753597,1.0004309869827759,Points on 1-7 scale
+Motivation,qol_expected_z,Expected quality-of-life impact,Citizen,0.8663571683375012,0.8152639995403275,0.9174503371346749,Points on 1-7 scale
+Motivation,qol_expected_z,Expected quality-of-life impact,Social role model,0.9233938396452913,0.8519650953346891,0.9948225839558935,Points on 1-7 scale
+Motivation,conversation_z,Climate conversations,Overall,0.7193652397486019,0.6449368915423151,0.7937935879548886,Points on 1-7 scale
+Motivation,conversation_z,Climate conversations,Consumer (technology),0.5875643035010791,0.48344836654338086,0.6916802404587774,Points on 1-7 scale
+Motivation,conversation_z,Climate conversations,Consumer (curtailment),0.6739185295117779,0.5903855325156767,0.7574515265078791,Points on 1-7 scale
+Motivation,conversation_z,Climate conversations,Organisational participant,0.9110236462786487,0.7929693565242445,1.0290779360330529,Points on 1-7 scale
+Motivation,conversation_z,Climate conversations,Investor,0.708228659288713,0.5704866945101232,0.8459706240673028,Points on 1-7 scale
+Motivation,conversation_z,Climate conversations,Citizen,0.6658585779524696,0.5790110515105306,0.7527061043944087,Points on 1-7 scale
+Motivation,conversation_z,Climate conversations,Social role model,0.969162258959503,0.8631299047734987,1.0751946131455072,Points on 1-7 scale
+Motivation,action_knowledge_z,Action knowledge,Overall,0.07469563385828336,-0.012425690195419947,0.16181695791198666,Points on 1-7 scale
+Motivation,action_knowledge_z,Action knowledge,Consumer (technology),0.10316919421423293,-0.012098764289638478,0.21843715271810432,Points on 1-7 scale
+Motivation,action_knowledge_z,Action knowledge,Consumer (curtailment),0.05467890182923219,-0.04025640198460193,0.14961420564306632,Points on 1-7 scale
+Motivation,action_knowledge_z,Action knowledge,Organisational participant,0.03732687352324297,-0.08925855209106963,0.16391229913755556,Points on 1-7 scale
+Motivation,action_knowledge_z,Action knowledge,Investor,0.025262479779585106,-0.11860051087732852,0.16912547043649873,Points on 1-7 scale
+Motivation,action_knowledge_z,Action knowledge,Citizen,0.10824490569723713,0.009860679612301956,0.2066291317821723,Points on 1-7 scale
+Motivation,action_knowledge_z,Action knowledge,Social role model,0.07626247010091552,-0.039433624982875476,0.19195856518470653,Points on 1-7 scale
+Motivation,attribution_z,Individual-attribution belief,Overall,0.3876840032916456,0.30400980901951463,0.47135819756377656,Points on 1-7 scale
+Motivation,attribution_z,Individual-attribution belief,Consumer (technology),0.3493768101554413,0.2372967100040636,0.461456910306819,Points on 1-7 scale
+Motivation,attribution_z,Individual-attribution belief,Consumer (curtailment),0.4250980835965333,0.33313418168586906,0.5170619855071975,Points on 1-7 scale
+Motivation,attribution_z,Individual-attribution belief,Organisational participant,0.4525071729614222,0.3303269279361939,0.5746874179866505,Points on 1-7 scale
+Motivation,attribution_z,Individual-attribution belief,Investor,0.27936294972074105,0.13924122196068284,0.41948467748079926,Points on 1-7 scale
+Motivation,attribution_z,Individual-attribution belief,Citizen,0.31286095263737834,0.2178771985157631,0.4078447067589936,Points on 1-7 scale
+Motivation,attribution_z,Individual-attribution belief,Social role model,0.49063493678214387,0.37784678339405536,0.6034230901702324,Points on 1-7 scale
+Motivation,techno_optimism_z,Techno-optimism,Overall,-0.4331144050465343,-0.5165469780990544,-0.34968183199401426,Points on 1-7 scale
+Motivation,techno_optimism_z,Techno-optimism,Consumer (technology),-0.09981707783133617,-0.20985017944383755,0.01021602378116522,Points on 1-7 scale
+Motivation,techno_optimism_z,Techno-optimism,Consumer (curtailment),-0.43044968533085654,-0.5218054953108231,-0.33909387535089,Points on 1-7 scale
+Motivation,techno_optimism_z,Techno-optimism,Organisational participant,-0.4675281497840104,-0.592227136508495,-0.3428291630595258,Points on 1-7 scale
+Motivation,techno_optimism_z,Techno-optimism,Investor,-0.51562226203592465,-0.6539873485432255,-0.3772571755286238,Points on 1-7 scale
+Motivation,techno_optimism_z,Techno-optimism,Citizen,-0.4935133876922747,-0.5883484808605802,-0.3986782945239692,Points on 1-7 scale
+Motivation,techno_optimism_z,Techno-optimism,Social role model,-0.5723534030042481,-0.6851509929688077,-0.4595558130396885,Points on 1-7 scale
+Motivation,political_z,Political orientation (right),Overall,-0.5505717278485176,-0.6341409362706323,-0.46700251942640286,Points on 1-7 scale
+Motivation,political_z,Political orientation (right),Consumer (technology),-0.2561670722783874,-0.369057176715602,-0.14327696784117283,Points on 1-7 scale
+Motivation,political_z,Political orientation (right),Consumer (curtailment),-0.5300123172051607,-0.6221160001591167,-0.4379086342512048,Points on 1-7 scale
+Motivation,political_z,Political orientation (right),Organisational participant,-0.6234989342120887,-0.7487906396278682,-0.4982072287963092,Points on 1-7 scale
+Motivation,political_z,Political orientation (right),Investor,-0.6600245866945265,-0.8038058834068617,-0.5162432899821913,Points on 1-7 scale
+Motivation,political_z,Political orientation (right),Citizen,-0.6679100827975932,-0.7636874554554623,-0.5721327101397241,Points on 1-7 scale
+Motivation,political_z,Political orientation (right),Social role model,-0.5405645596437376,-0.6546071010402109,-0.4265220182472644,Points on 1-7 scale

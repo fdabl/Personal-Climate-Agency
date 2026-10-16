@@ -1,0 +1,5067 @@
+---
+title: "Data analysis"
+author: Kristian Nielsen, Jianing Ding, Fabian Dablander
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+header-includes:
+   - "\\usepackage{booktabs}"
+output:
+  html_document:
+    toc: true
+    number_sections: false
+    anchor_sections: false
+    theme: united
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = TRUE)
+```
+
+# Setup
+This file reproduces all analyses and figures for the paper Nielsen, K., Ding, J., Ejsing, M., Sekara, V., & Dablander, F. (2026). Personal climate agency in a high-income context. All derived variables come from `data_cleaning.Rmd`.
+
+```{r packages}
+library(tidyverse)
+library(lme4)
+library(lmerTest)
+library(glmmTMB)
+library(V8)
+library(rsvg)
+library(performance)
+library(marginaleffects)
+library(patchwork)
+library(tibble)
+library(haven)
+library(flextable)
+library(officer)
+library(psych)
+library(dplyr)
+library(labelled)
+library(gtsummary)
+library(broom.mixed)
+library(jsonlite)
+library(conflicted)
+
+conflicted::conflicts_prefer(
+  dplyr::filter, dplyr::select, dplyr::mutate, dplyr::summarise,
+  dplyr::arrange, dplyr::lag,
+  lmerTest::lmer, lme4::glmer
+)
+
+looks_right <- function(p) {
+  !is.null(p) && !is.na(p) && nzchar(p) && dir.exists(p) &&
+    (file.exists(file.path(p, "data_rudersdal.csv")) ||
+     file.exists(file.path(p, "clean", "data_clean_person.rds")))
+}
+
+project_data <- getwd()
+clean_dir   <- file.path(project_data, "data", "clean")     # written by the cleaning script
+output_dir  <- file.path(project_data, "output")    # tables and SI figures
+figure_dir  <- file.path(project_data, "figures")   # D3 sources + JSON
+
+for (d in c(clean_dir, output_dir, figure_dir)) {
+  dir.create(d, recursive = TRUE, showWarnings = FALSE)
+}
+
+# ------------------------------------------------------------------------------
+# Cleaned data. Produced by data_cleaning.Rmd, which is run once here if the
+# files are absent. Delete the files in clean/ to force a re-clean.
+# ------------------------------------------------------------------------------
+clean_files <- c("data_clean_person.rds", "data_clean_long.rds", "constants.rds")
+
+cleaning_rmd <- c(
+  file.path(project_data, "data_cleaning.Rmd"),
+  here::here("data_cleaning.Rmd")
+)
+cleaning_rmd <- cleaning_rmd[file.exists(cleaning_rmd)][1]
+
+missing <- clean_files[!file.exists(file.path(clean_dir, clean_files))]
+
+if (length(missing) > 0) {
+  if (is.na(cleaning_rmd)) {
+    stop("Cleaned data not found in ", clean_dir,
+         "\nMissing: ", paste(missing, collapse = ", "),
+         "\nand data_cleaning.Rmd was not found. Run the cleaning script, ",
+         "or place it in ", project_data)
+  }
+  message("Cleaned data not found; running ", basename(cleaning_rmd), " once...")
+  callr::r(
+    function(rmd, project_dir) {
+      setwd(project_dir)
+      rmarkdown::render(
+        input = rmd,
+        quiet = TRUE,
+        envir = new.env(parent = globalenv())
+      )
+    },
+    args = list(cleaning_rmd, project_data),
+    show = TRUE
+  )
+
+  still <- clean_files[!file.exists(file.path(clean_dir, clean_files))]
+  if (length(still) > 0) {
+    stop("The cleaning script ran but did not write: ", paste(still, collapse = ", "),
+         "\nCheck that it saves to ", clean_dir)
+  }
+}
+
+df_person <- readRDS(file.path(clean_dir, "data_clean_person.rds"))
+df_long   <- readRDS(file.path(clean_dir, "data_clean_long.rds"))
+const     <- readRDS(file.path(clean_dir, "constants.rds"))
+
+behaviour_labels <- const$behaviour_labels
+role_levels      <- const$role_levels
+
+# Abbreviated labels used in every figure (full wording in Methods)
+short_labels <- c(
+  "1"  = "Buy an electric car",            "2"  = "Improve home energy efficiency",
+  "3"  = "Take fewer flights",             "4"  = "Eat less red meat",
+  "5"  = "Use public transport",           "6"  = "Install solar panels",
+  "7"  = "Eat less white meat",            "8"  = "Drive fewer kilometres",
+  "9"  = "Reduce home heating/cooling",    "10" = "Move investments/pension",
+  "11" = "Donate to climate organisations","12" = "Support initiatives at work",
+  "13" = "Promote change in organisation", "14" = "Be a climate role model",
+  "15" = "Talk with family/friends",       "16" = "Vote for pro-climate politicians",
+  "17" = "Sign petitions/contact politicians", "18" = "Participate in demonstrations"
+)
+
+id_by_name <- df_long |>
+  distinct(behaviour_id, behaviour_name) |>
+  mutate(behaviour_name = as.character(behaviour_name))
+
+clean_names <- c(
+  "age_z"                 = "Age",
+  "gender_bin"            = "Women vs men",
+  "income_filled_z"       = "Income",
+  "is_employed"           = "Employed vs not employed",
+  "action_knowledge_z"    = "Action knowledge",
+  "climate_knowledge_z"   = "Climate knowledge",
+  "attribution_z"         = "Individual-attribution belief",
+  "conversation_z"        = "Climate conversations",
+  "techno_optimism_z"     = "Techno-optimism",
+  "qol_expected_z"        = "Expected quality-of-life impact",
+  "climate_impact_z"      = "Expected climate impacts",
+  "injunctive_norm_z"     = "Injunctive norm",
+  "political_z"           = "Political orientation (right)"
+)
+
+# Analysis populations, defined once
+df_relevant <- df_long |> filter(action_status != "Not relevant")
+df_untaken  <- df_long |>
+  filter(action_status == "Relevant, not taken") |>
+  group_by(behaviour_id) |>
+  mutate(
+    # Standardise expected QoL only among respondents who have not yet taken
+    # the action. Pooling these ratings with experienced QoL changes both the
+    # reference distribution and the meaning of a one-SD contrast.
+    qol_expected_z = if (sum(!is.na(qol)) > 1) {
+      as.numeric(scale(qol))
+    } else {
+      NA_real_
+    }
+  ) |>
+  ungroup()
+
+# Employed respondents with a work-position classification, reused below
+df_emp <- df_long |>
+  filter(is_employed == "Employed", !is.na(leadership_cat)) |>
+  mutate(
+    leadership_cat = factor(leadership_cat,
+      levels = c("No decision authority", "Professional/administrative",
+                 "Strategic/financial", "Self-employed")),
+    is_organisational = factor(
+      ifelse(behaviour_role == "Organisational participant", "Organisational", "Other roles"),
+      levels = c("Other roles", "Organisational"))
+  )
+
+construct_levels <- c("Actions already taken", "Perceived opportunity", "Motivation")
+
+role_sizes <- df_long |>
+  distinct(behaviour_id, behaviour_role) |>
+  count(behaviour_role, name = "n_actions")
+
+# Mean number of relevant actions per respondent. Utilisation effects are
+# converted to actions with this, because utilisation is defined over relevant
+# actions, not all 18.
+opp_space_mean <- mean(df_person$opportunity_space)
+```
+
+## Effects helpers
+
+Every predictor is fitted in its own model, adjusted for the structural
+predictors (the "individual regressions" in the text). `multiple = TRUE` fits all
+predictors together (SI).
+
+```{r helpers}
+# Contrasts: continuous predictors +1 SD; gender_bin explicitly 0 -> 1.
+contrast_spec <- function(vars) {
+  setNames(lapply(vars, function(v) if (v == "gender_bin") c(0, 1) else 1), vars)
+}
+
+adjust_for <- function(p) {
+  adj <- c(setdiff(c("gender_bin", "age_z", "income_filled_z"), p), "income_status")
+  if (p == "prestige_filled_z") adj <- c(adj, "prestige_status")
+  adj
+}
+
+fit_effects <- function(data, outcome, preds,
+                        family = c("binomial", "gaussian"),
+                        level  = c("role", "behaviour"),
+                        multiple = FALSE) {
+
+  family <- match.arg(family)
+  level  <- match.arg(level)
+
+  fam <- if (family == "binomial") {
+    binomial("logit")
+  } else {
+    gaussian()
+  }
+
+  by <- if (level == "role") {
+    "behaviour_role"
+  } else {
+    "behaviour_name"
+  }
+
+  re <- if (level == "role") {
+    "(1 | response_id) + (1 | behaviour_id)"
+  } else {
+    "(1 | response_id)"
+  }
+
+  one <- function(focal, adj) {
+
+    rhs <- paste0(
+      "(",
+      paste(focal, collapse = " + "),
+      ") * ",
+      by
+    )
+
+    if (length(adj)) {
+      rhs <- paste(
+        rhs,
+        "+",
+        paste(adj, collapse = " + ")
+      )
+    }
+
+    f <- as.formula(
+      paste(
+        outcome,
+        "~",
+        rhs,
+        "+",
+        re
+      )
+    )
+
+    d <- drop_na(
+      data,
+      all_of(c(outcome, focal, adj))
+    )
+
+    m <- glmmTMB(
+      f,
+      family = fam,
+      data = d
+    )
+
+    vs <- contrast_spec(focal)
+
+    overall <- avg_comparisons(
+      m,
+      variables = vs,
+      type = "response"
+    ) |>
+      as_tibble() |>
+      mutate(level = "Overall")
+
+    by_lvl <- avg_comparisons(
+      m,
+      variables = vs,
+      by = by,
+      type = "response"
+    ) |>
+      as_tibble() |>
+      mutate(
+        level = as.character(.data[[by]])
+      )
+
+    bind_rows(
+      overall,
+      by_lvl
+    ) |>
+      transmute(
+        term,
+        level,
+        estimate,
+        conf.low,
+        conf.high,
+        n_obs = nrow(d)
+      )
+  }
+
+  out <- if (multiple) {
+
+    one(
+      preds,
+      c(
+        "income_status",
+        "prestige_status"
+      )
+    )
+
+  } else {
+
+    map_dfr(
+      preds,
+      function(p) {
+        one(
+          p,
+          adjust_for(p)
+        )
+      }
+    )
+  }
+
+  out |>
+    mutate(
+      outcome = outcome,
+      Predictor = unname(clean_names[term])
+    )
+}
+```
+
+---
+
+# Sample composition
+
+```{r s0-sample}
+df_person |>
+  summarise(
+    n            = n(),
+    mean_age     = round(mean(age, na.rm = TRUE), 1),
+    sd_age       = round(sd(age, na.rm = TRUE), 1),
+    median_age   = median(age, na.rm = TRUE),
+    pct_over_65  = round(100 * mean(age >= 65, na.rm = TRUE), 1),
+    pct_employed = round(100 * mean(is_employed == "Employed", na.rm = TRUE), 1)
+  )
+# Municipal adult mean age: 53.4
+
+df_person |>
+  group_by(is_employed) |>
+  summarise(n = n(), mean_age = round(mean(age, na.rm = TRUE), 1), .groups = "drop")
+
+#----------------------------------------------------------
+# Supplementary Table 1: Participant characteristics
+#----------------------------------------------------------
+
+mean_sd <- function(x) {
+  sprintf(
+    "%.2f (%.2f)",
+    mean(x, na.rm = TRUE),
+    sd(x, na.rm = TRUE)
+  )
+}
+
+n_pct <- function(n, denominator) {
+  sprintf(
+    "%d (%.1f)",
+    n,
+    100 * n / denominator
+  )
+}
+
+
+# Income: median and IQR in substantive categories
+income_labels <- c(
+  "Under 200,000 DKK",
+  "200,000-299,999 DKK",
+  "300,000-399,999 DKK",
+  "400,000-499,999 DKK",
+  "500,000-649,999 DKK",
+  "650,000-799,999 DKK",
+  "800,000-999,999 DKK",
+  "1,000,000-1,249,999 DKK",
+  "1,250,000-1,499,999 DKK",
+  "1,500,000 DKK or more"
+)
+
+income_quantiles <- quantile(
+  df_person$income,
+  probs = c(.25, .50, .75),
+  na.rm = TRUE,
+  type = 1
+)
+
+income_q1 <- income_labels[
+  as.integer(income_quantiles[1])
+]
+
+income_median <- income_labels[
+  as.integer(income_quantiles[2])
+]
+
+income_q3 <- income_labels[
+  as.integer(income_quantiles[3])
+]
+
+income_display <- paste0(
+  income_median,
+  " [",
+  income_q1,
+  " to ",
+  income_q3,
+  "]"
+)
+
+# 3. Counts
+# Gender
+n_man <- sum(
+  df_person$gender == 1,
+  na.rm = TRUE
+)
+
+n_woman <- sum(
+  df_person$gender == 2,
+  na.rm = TRUE
+)
+
+n_nonbinary <- sum(
+  df_person$gender == 3,
+  na.rm = TRUE
+)
+
+# Excludes "prefer not to say" / missing
+n_gender <- n_man +
+  n_woman +
+  n_nonbinary
+
+# Employment
+n_employed <- sum(
+  df_person$is_employed == "Employed",
+  na.rm = TRUE
+)
+
+n_not_employed <- sum(
+  df_person$is_employed == "Not employed",
+  na.rm = TRUE
+)
+
+n_employment <- n_employed +
+  n_not_employed
+
+# Leadership
+# Self-employed respondents were not administered
+# the leadership item and are excluded here.
+
+leadership_valid <- df_person |>
+  filter(
+    leadership_cat %in% c(
+      "Strategic/financial",
+      "Professional/administrative",
+      "No decision authority"
+    )
+  )
+
+n_leadership <- nrow(
+  leadership_valid
+)
+
+n_strategic <- sum(
+  leadership_valid$leadership_cat ==
+    "Strategic/financial"
+)
+
+n_professional <- sum(
+  leadership_valid$leadership_cat ==
+    "Professional/administrative"
+)
+
+n_no_authority <- sum(
+  leadership_valid$leadership_cat ==
+    "No decision authority"
+)
+
+# 4. Construct table
+tab_s1 <- tribble(
+  ~Characteristic,
+  ~`Mean (SD) or median [IQR]`,
+  ~`n (%)`,
+  ~row_type,
+
+  "Socio-demographic characteristics",
+  "",
+  "",
+  "section",
+
+  "Age (years)",
+  mean_sd(df_person$age),
+  "",
+  "continuous",
+
+  "Personal annual income before tax",
+  income_display,
+  "",
+  "continuous",
+
+  "Gender",
+  "",
+  "",
+  "subheading",
+
+  "Man",
+  "",
+  n_pct(
+    n_man,
+    n_gender
+  ),
+  "category",
+
+  "Woman",
+  "",
+  n_pct(
+    n_woman,
+    n_gender
+  ),
+  "category",
+
+  "Non-binary",
+  "",
+  n_pct(
+    n_nonbinary,
+    n_gender
+  ),
+  "category",
+
+  "Employment status",
+  "",
+  "",
+  "subheading",
+
+  "Employed",
+  "",
+  n_pct(
+    n_employed,
+    n_employment
+  ),
+  "category",
+
+  "Not employed",
+  "",
+  n_pct(
+    n_not_employed,
+    n_employment
+  ),
+  "category",
+
+  "Leadership responsibility",
+  "",
+  "",
+  "subheading",
+
+  "Strategic or financial",
+  "",
+  n_pct(
+    n_strategic,
+    n_leadership
+  ),
+  "category",
+
+  "Professional or administrative",
+  "",
+  n_pct(
+    n_professional,
+    n_leadership
+  ),
+  "category",
+
+  "No leadership or decision responsibility",
+  "",
+  n_pct(
+    n_no_authority,
+    n_leadership
+  ),
+  "category",
+
+  "Social and psychological characteristics",
+  "",
+  "",
+  "section",
+
+  "Perceived action knowledge",
+  mean_sd(
+    df_person$action_knowledge
+  ),
+  "",
+  "continuous",
+
+  "Individual-attribution belief",
+  mean_sd(
+    df_person$attribution
+  ),
+  "",
+  "continuous",
+
+  "Techno-optimism",
+  mean_sd(
+    df_person$techno_optimism
+  ),
+  "",
+  "continuous",
+
+  "Climate conversations",
+  mean_sd(
+    df_person$conversation
+  ),
+  "",
+  "continuous",
+
+  "Political orientation (left-right)",
+  mean_sd(
+    df_person$political
+  ),
+  "",
+  "continuous"
+)
+
+# 5. Identify row types
+section_rows <- which(
+  tab_s1$row_type == "section"
+)
+
+subheading_rows <- which(
+  tab_s1$row_type == "subheading"
+)
+
+category_rows <- which(
+  tab_s1$row_type == "category"
+)
+
+# 6. Create flextable
+table_s1 <- tab_s1 |>
+  select(-row_type) |>
+  flextable() |>
+
+  # Typography
+  font(
+    fontname = "Arial",
+    part = "all"
+  ) |>
+  fontsize(
+    size = 9,
+    part = "all"
+  ) |>
+
+  # Header
+  bold(
+    part = "header"
+  ) |>
+  align(
+    j = "Characteristic",
+    align = "left",
+    part = "all"
+  ) |>
+  align(
+    j = c(
+      "Mean (SD) or median [IQR]",
+      "n (%)"
+    ),
+    align = "right",
+    part = "all"
+  ) |>
+
+  # Remove default borders
+  border_remove() |>
+
+  # Header top rule
+  border(
+    border.top = fp_border(
+      color = "black",
+      width = 1
+    ),
+    part = "header"
+  ) |>
+
+  # Header bottom rule
+  border(
+    border.bottom = fp_border(
+      color = "black",
+      width = 0.75
+    ),
+    part = "header"
+  ) |>
+
+  # Main section headings
+  bold(
+    i = section_rows,
+    part = "body"
+  ) |>
+
+  # Rule above main sections
+  border(
+    i = section_rows,
+    border.top = fp_border(
+      color = "black",
+      width = 0.75
+    ),
+    part = "body"
+  ) |>
+
+  # Subheadings
+  bold(
+    i = subheading_rows,
+    part = "body"
+  ) |>
+
+  # Indent categorical levels
+  padding(
+    i = category_rows,
+    j = "Characteristic",
+    padding.left = 14,
+    part = "body"
+  ) |>
+
+  # General spacing
+  padding(
+    padding.top = 2,
+    padding.bottom = 2,
+    padding.left = 3,
+    padding.right = 3,
+    part = "all"
+  ) |>
+
+  # Additional spacing around main sections
+  padding(
+    i = section_rows,
+    padding.top = 5,
+    padding.bottom = 3,
+    part = "body"
+  ) |>
+
+  # Bottom rule
+  border(
+    i = nrow(tab_s1),
+    border.bottom = fp_border(
+      color = "black",
+      width = 1
+    ),
+    part = "body"
+  ) |>
+
+  # Column widths
+  width(
+    j = "Characteristic",
+    width = 3.2
+  ) |>
+  width(
+    j = "Mean (SD) or median [IQR]",
+    width = 2.5
+  ) |>
+  width(
+    j = "n (%)",
+    width = 1.0
+  ) |>
+
+  # Vertical alignment
+  valign(
+    valign = "center",
+    part = "all"
+  )
+
+# Display
+table_s1
+
+# Export
+save_as_docx(
+  table_s1,
+  path = file.path(
+    output_dir,
+    "Table_S1.docx"
+  )
+)
+
+```
+
+---
+
+# The opportunity space for personal climate action
+
+## Numbers reported in the text
+
+```{r s1-verification}
+tab_action <- df_long |>
+  count(behaviour_id, behaviour_name, behaviour_role, action_status) |>
+  group_by(behaviour_id) |>
+  mutate(pct = round(100 * n / sum(n), 1)) |>
+  ungroup() |>
+  select(-n) |>
+  pivot_wider(names_from = action_status, values_from = pct)
+
+tab_action |> arrange(behaviour_role, desc(`Already taken`)) |> print(n = 18)
+
+tab_role <- df_long |>
+  count(behaviour_role, action_status) |>
+  group_by(behaviour_role) |>
+  mutate(pct = round(100 * n / sum(n), 1)) |>
+  ungroup() |>
+  select(-n) |>
+  pivot_wider(names_from = action_status, values_from = pct)
+
+tab_role
+
+df_person |>
+  summarise(across(c(opportunity_space, n_already_taken, remaining_space),
+                   list(mean = ~ round(mean(.x), 1), median = ~ median(.x)),
+                   .names = "{.col}_{.fn}"))
+
+# Organisational actions among employed respondents 
+df_long |>
+  filter(behaviour_id %in% c(12, 13), is_employed == "Employed") |>
+  group_by(behaviour_id) |>
+  summarise(pct_taken = round(100 * mean(action_status == "Already taken"), 1), .groups = "drop")
+
+write_csv(tab_action, file.path(output_dir, "tab_s9_by_action.csv"))
+write_csv(tab_role,   file.path(output_dir, "tab_s10_by_role.csv"))
+```
+
+## Sensitivity check against self-reported consumer behaviour
+
+Reported before the climate action items. If "already taken" is understood correctly,
+respondents who report having cut flights, meat or driving should report lower
+current levels than those for whom the action is relevant but not yet taken.
+
+```{r s1-sensitivity}
+baseline_map <- tribble(
+  ~behaviour_id, ~baseline_var,      ~baseline_label,
+  8L,            "driving",          "Annual kilometres driven (category)",
+  3L,            "flying_frequency", "Number of one-way flights",
+  4L,            "red_meat",         "Red meat consumption frequency",
+  7L,            "white_meat",       "White meat consumption frequency"
+)
+
+# -------------------------------------------------------------------------
+# Validate "Already taken" against separately reported behaviour
+# -------------------------------------------------------------------------
+
+tab_validation <- baseline_map |>
+  pmap_dfr(function(behaviour_id, baseline_var, baseline_label) {
+
+    d <- df_long |>
+      filter(behaviour_id == !!behaviour_id) |>
+      # Standardise using all respondents with valid data for the behaviour,
+      # before restricting to the two action-status groups
+      mutate(y = as.numeric(scale(.data[[baseline_var]])))
+
+    desc <- d |>
+      filter(action_status %in% c("Relevant, not taken", "Already taken")) |>
+      group_by(action_status) |>
+      summarise(
+        n = sum(!is.na(.data[[baseline_var]])),
+        mean = mean(.data[[baseline_var]], na.rm = TRUE),
+        .groups = "drop"
+      )
+
+    d_model <- d |>
+      filter(
+        action_status %in% c("Relevant, not taken", "Already taken"),
+        !is.na(y)
+      ) |>
+      mutate(
+        taken = as.integer(action_status == "Already taken")
+      )
+
+    fit <- lm(y ~ taken, data = d_model)
+    ci <- confint(fit)["taken", ]
+
+    tibble(
+      action = short_labels[[as.character(behaviour_id)]],
+      measure = baseline_label,
+      n_not_taken = desc$n[
+        desc$action_status == "Relevant, not taken"
+      ],
+      mean_not_taken = desc$mean[
+        desc$action_status == "Relevant, not taken"
+      ],
+      n_taken = desc$n[
+        desc$action_status == "Already taken"
+      ],
+      mean_taken = desc$mean[
+        desc$action_status == "Already taken"
+      ],
+      diff_sd = coef(fit)[["taken"]],
+      conf.low = ci[1],
+      conf.high = ci[2]
+    )
+  })
+
+# -------------------------------------------------------------------------
+# Supplementary Table 2
+# -------------------------------------------------------------------------
+
+tab_validation_ft <- tab_validation |>
+  transmute(
+    Action = action,
+    n_not_taken = n_not_taken,
+    mean_not_taken = mean_not_taken,
+    n_taken = n_taken,
+    mean_taken = mean_taken,
+    difference = sprintf(
+      "%.2f (%.2f, %.2f)",
+      diff_sd, conf.low, conf.high
+    )
+  )
+
+ft_validation <- flextable(tab_validation_ft) |>
+
+  set_header_labels(
+    Action = "Action",
+    n_not_taken = "n",
+    mean_not_taken = "Mean",
+    n_taken = "n",
+    mean_taken = "Mean",
+    difference = "Difference (95% CI), SD"
+  ) |>
+
+  add_header_row(
+    values = c(
+      "",
+      "Relevant, not taken",
+      "Already taken",
+      ""
+    ),
+    colwidths = c(1, 2, 2, 1)
+  ) |>
+
+  merge_at(i = 1:2, j = 1, part = "header") |>
+  merge_at(i = 1:2, j = 6, part = "header") |>
+
+  colformat_double(
+    j = c("mean_not_taken", "mean_taken"),
+    digits = 2
+  ) |>
+
+  border_remove() |>
+
+  hline_top(
+    part = "header",
+    border = fp_border(color = "black", width = 1)
+  ) |>
+  hline(
+    i = 2,
+    part = "header",
+    border = fp_border(color = "black", width = 0.75)
+  ) |>
+  hline_bottom(
+    part = "body",
+    border = fp_border(color = "black", width = 1)
+  ) |>
+
+  font(fontname = "Arial", part = "all") |>
+  fontsize(size = 9, part = "all") |>
+  bold(part = "header") |>
+
+  align(
+    j = "Action",
+    align = "left",
+    part = "all"
+  ) |>
+  align(
+    j = c(
+      "n_not_taken",
+      "mean_not_taken",
+      "n_taken",
+      "mean_taken",
+      "difference"
+    ),
+    align = "center",
+    part = "all"
+  ) |>
+  valign(
+    valign = "center",
+    part = "all"
+  ) |>
+
+  padding(
+    padding.top = 2,
+    padding.bottom = 2,
+    padding.left = 3,
+    padding.right = 3,
+    part = "all"
+  ) |>
+
+  width(j = "Action", width = 1.8) |>
+  width(j = c("n_not_taken", "n_taken"), width = 0.45) |>
+  width(j = c("mean_not_taken", "mean_taken"), width = 0.60) |>
+  width(j = "difference", width = 1.45) |>
+
+  set_table_properties(
+    layout = "fixed",
+    width = 0.85
+  )
+
+ft_validation <- autofit(ft_validation)
+
+save_as_docx(
+  ft_validation,
+  path = file.path(output_dir, "Table_S2.docx")
+)
+
+ft_validation
+
+# -------------------------------------------------------------------------
+# Distance-based sensitivity check for flights
+# -------------------------------------------------------------------------
+
+tab_flight_distance <- df_long |>
+  filter(behaviour_id == 3) |>
+  count(action_status, flying_distance_cat) |>
+  group_by(action_status) |>
+  mutate(
+    pct = round(100 * n / sum(n), 1)
+  ) |>
+  ungroup()
+
+tab_flight_distance
+```
+
+## SI: decomposing "not relevant"
+
+```{r s1-decomposition}
+df_nr <- df_long |>
+  filter(action_status == "Not relevant") |>
+  mutate(cause = case_when(
+    behaviour_id %in% c(12, 13) & is_employed == "Not employed" ~ "Role non-applicability",
+    behaviour_id == 3 & flying_frequency == 0                   ~ "Floor effect",
+    behaviour_id == 4 & red_meat   <= 1                         ~ "Floor effect",
+    behaviour_id == 7 & white_meat <= 1                         ~ "Floor effect",
+    behaviour_id == 8 & driving    <= 2                         ~ "Floor effect",
+    behaviour_id %in% c(2, 6)                                   ~ "Asset non-applicability (assumed)",
+    TRUE                                                        ~ "Residual"
+  ))
+
+tab_decomp <- df_nr |>
+  count(behaviour_role, cause) |>
+  group_by(behaviour_role) |>
+  mutate(pct = round(100 * n / sum(n), 1)) |>
+  ungroup()
+tab_decomp
+write_csv(tab_decomp, file.path(output_dir, "tab_s8_not_relevant_decomposition.csv"))
+```
+
+---
+
+# Socioeconomic differences in the opportunity space
+
+We examine whether the probability that an action is part of respondents'
+opportunity space varies with socioeconomic and demographic characteristics,
+and whether these associations differ across roles.
+
+## Main models 
+
+```{r s2-models}
+
+# Income non-response is handled using the missingness indicator and
+# mean-filled standardised income variables created in the cleaning script.
+df_m2 <- df_long |>
+  drop_na(
+    is_relevant,
+    age_z,
+    gender_bin,
+    income_status,
+    income_filled_z,
+    is_employed,
+    behaviour_role
+  )
+
+message(
+  "Participants in main models: ",
+  n_distinct(df_m2$response_id),
+  " / ",
+  n_distinct(df_long$response_id)
+)
+
+message(
+  "Person-action observations in main models: ",
+  nrow(df_m2),
+  " / ",
+  nrow(df_long)
+)
+
+form0 <- is_relevant ~
+  1 +
+  (1 | response_id) +
+  (1 | behaviour_id)
+
+# Additive model: associations assumed to be common across roles
+form1 <- is_relevant ~
+  age_z +
+  gender_bin +
+  income_status +
+  income_filled_z +
+  is_employed +
+  behaviour_role +
+  (1 | response_id) +
+  (1 | behaviour_id)
+
+# Interaction model: associations allowed to differ across roles
+form2 <- is_relevant ~
+  (age_z +
+    gender_bin +
+    income_status +
+    income_filled_z +
+    is_employed
+  ) * behaviour_role +
+  (1 | response_id) +
+  (1 | behaviour_id)
+
+m0 <- glmmTMB(
+  form0,
+  family = binomial("logit"),
+  data = df_m2
+)
+
+m1 <- glmmTMB(
+  form1,
+  family = binomial("logit"),
+  data = df_m2
+)
+
+m2 <- glmmTMB(
+  form2,
+  family = binomial("logit"),
+  data = df_m2
+)
+
+anova(m0, m1, m2)
+
+map(
+  list(m0 = m0, m1 = m1, m2 = m2),
+  r2_nakagawa
+)
+
+check_collinearity(m2)
+```
+
+## Model comparison: Supplementary Table 3 
+
+```{r s2-model-comparison}
+
+# Document why the role-specific interaction model is preferred.
+lrt_s2 <- anova(m0, m1, m2) |>
+  as.data.frame()
+
+r2_s2 <- imap_dfr(
+  list(
+    "Null model" = m0,
+    "Additive model" = m1,
+    "Role-interaction model" = m2
+  ),
+  \(model, model_name) {
+    r2 <- performance::r2_nakagawa(model)
+
+    tibble(
+      Model = model_name,
+      `Marginal R2` = r2$R2_marginal,
+      `Conditional R2` = r2$R2_conditional
+    )
+  }
+)
+
+tab_s3 <- tibble(
+  Model = c(
+    "Null model",
+    "Additive model",
+    "Role-interaction model"
+  ),
+  AIC = c(AIC(m0), AIC(m1), AIC(m2)),
+  BIC = c(BIC(m0), BIC(m1), BIC(m2)),
+  `Likelihood-ratio chi-square` = c(
+    NA,
+    lrt_s2$Chisq[2],
+    lrt_s2$Chisq[3]
+  ),
+  df = c(
+    NA,
+    lrt_s2$`Chi Df`[2],
+    lrt_s2$`Chi Df`[3]
+  ),
+  p = c(
+    NA,
+    lrt_s2$`Pr(>Chisq)`[2],
+    lrt_s2$`Pr(>Chisq)`[3]
+  )
+) |>
+  left_join(r2_s2, by = "Model") |>
+  mutate(
+    AIC = round(AIC),
+    BIC = round(BIC),
+    `Likelihood-ratio chi-square` =
+      round(`Likelihood-ratio chi-square`, 2),
+    `Marginal R2` = round(`Marginal R2`, 3),
+    `Conditional R2` = round(`Conditional R2`, 3),
+    p = case_when(
+      is.na(p) ~ "",
+      p < .001 ~ "<.001",
+      TRUE ~ sprintf("%.3f", p)
+    )
+  )
+
+# Publication-ready table
+table_s3 <- flextable(tab_s3) |>
+  set_header_labels(
+    Model = "Model",
+    AIC = "AIC",
+    BIC = "BIC",
+    `Likelihood-ratio chi-square` = "χ²",
+    df = "df",
+    p = "P",
+    `Marginal R2` = "Marginal R²",
+    `Conditional R2` = "Conditional R²"
+  ) |>
+  border_remove() |>
+  hline_top(
+    part = "header",
+    border = fp_border(color = "black", width = 1)
+  ) |>
+  hline_bottom(
+    part = "header",
+    border = fp_border(color = "black", width = 0.75)
+  ) |>
+  hline_bottom(
+    part = "body",
+    border = fp_border(color = "black", width = 1)
+  ) |>
+  font(fontname = "Arial", part = "all") |>
+  fontsize(size = 9, part = "all") |>
+  bold(part = "header") |>
+  align(j = "Model", align = "left", part = "all") |>
+  align(j = 2:ncol(tab_s3), align = "center", part = "all") |>
+  padding(
+    padding.top = 2,
+    padding.bottom = 2,
+    padding.left = 3,
+    padding.right = 3,
+    part = "all"
+  ) |>
+  autofit()
+
+save_as_docx(
+  table_s3,
+  path = file.path(output_dir, "Table_S3.docx")
+)
+
+table_s3
+```
+
+## Overall and role-specific associations  
+
+```{r s2-effects}
+
+# Effects are average marginal effects on the probability scale.
+# Continuous predictors represent a 1-SD increase; binary predictors
+# compare 1 with 0.
+
+struct_vars <- list(
+  income_filled_z = 1,
+  age_z = 1,
+  is_employed = "reference",
+  gender_bin = c(0, 1)
+)
+
+eff_space_overall <- avg_comparisons(
+  m2,
+  variables = struct_vars,
+  type = "response"
+) |>
+  as_tibble() |>
+  mutate(role = "Overall")
+
+eff_space_role <- avg_comparisons(
+  m2,
+  variables = struct_vars,
+  by = "behaviour_role",
+  type = "response"
+) |>
+  as_tibble() |>
+  mutate(role = as.character(behaviour_role))
+
+eff_space <- bind_rows(
+  eff_space_overall,
+  eff_space_role
+) |>
+  mutate(
+    Predictor = unname(clean_names[term]),
+    across(
+      c(estimate, conf.low, conf.high),
+      ~ .x * 100,
+      .names = "{.col}_pp"
+    ),
+    # For the overall estimate only, convert the probability difference
+    # into the expected difference in number of relevant actions out of 18.
+    actions = if_else(
+      role == "Overall",
+      estimate * 18,
+      NA_real_
+    )
+  )
+
+eff_space |>
+  select(
+    Predictor,
+    contrast,
+    role,
+    estimate_pp,
+    conf.low_pp,
+    conf.high_pp,
+    actions
+  ) |>
+  print(n = 50)
+
+```
+
+## Income-as-factor sensitivity for Figure 2
+
+The primary analysis treats the ordered income categories as a standardised
+linear predictor and retains non-response with a missingness indicator. As a
+functional-form check for Figure 2 only, the following models use respondents
+with observed income and compare that linear specification with a categorical
+income-by-role specification. All other structural predictors and their role
+interactions are retained.
+
+```{r s2-income-factor-sensitivity}
+df_income_factor <- df_long |>
+  filter(!is.na(income)) |>
+  drop_na(is_relevant, age_z, gender_bin, is_employed, behaviour_role) |>
+  mutate(
+    income_factor = factor(
+      income,
+      levels = 1:10,
+      labels = income_labels
+    )
+  )
+
+m_income_linear_sensitivity <- glmmTMB(
+  is_relevant ~
+    (age_z + gender_bin + income_z + is_employed) * behaviour_role +
+    (1 | response_id) +
+    (1 | behaviour_id),
+  family = binomial("logit"),
+  data = df_income_factor
+)
+
+m_income_factor_sensitivity <- glmmTMB(
+  is_relevant ~
+    (age_z + gender_bin + income_factor + is_employed) * behaviour_role +
+    (1 | response_id) +
+    (1 | behaviour_id),
+  family = binomial("logit"),
+  data = df_income_factor
+)
+
+income_factor_lrt <- anova(
+  m_income_linear_sensitivity,
+  m_income_factor_sensitivity
+) |>
+  as.data.frame()
+
+income_factor_comparison <- tibble(
+  model = c("Income linear", "Income categorical"),
+  n_respondents = n_distinct(df_income_factor$response_id),
+  n_person_actions = nrow(df_income_factor),
+  AIC = c(AIC(m_income_linear_sensitivity), AIC(m_income_factor_sensitivity)),
+  BIC = c(BIC(m_income_linear_sensitivity), BIC(m_income_factor_sensitivity)),
+  lrt_chisq = c(NA_real_, income_factor_lrt$Chisq[2]),
+  lrt_df = c(NA_real_, income_factor_lrt$`Chi Df`[2]),
+  lrt_p = c(NA_real_, income_factor_lrt$`Pr(>Chisq)`[2])
+)
+
+income_factor_predictions <- avg_predictions(
+  m_income_factor_sensitivity,
+  by = c("income_factor", "behaviour_role"),
+  type = "response"
+) |>
+  as_tibble()
+
+income_factor_counts <- df_income_factor |>
+  distinct(response_id, income_factor) |>
+  count(income_factor, name = "n_respondents")
+
+income_factor_trend <- income_factor_predictions |>
+  mutate(income_rank = as.integer(income_factor)) |>
+  group_by(behaviour_role) |>
+  summarise(
+    spearman_rho = cor(income_rank, estimate, method = "spearman"),
+    .groups = "drop"
+  )
+
+# Keep all sensitivity-check results in the rendered analysis rather than
+# writing intermediate CSV files.
+income_factor_comparison |>
+  mutate(
+    delta_AIC = AIC - min(AIC),
+    delta_BIC = BIC - min(BIC)
+  )
+income_factor_counts
+income_factor_trend
+income_factor_predictions |> print(n = Inf)
+```
+
+The categorical specification improves the unpenalised fit relative to the
+linear specification (likelihood-ratio χ²(`r income_factor_lrt[["Chi Df"]][2]`) =
+`r sprintf("%.2f", income_factor_lrt$Chisq[2])`,
+*p* = `r format.pval(income_factor_lrt[["Pr(>Chisq)"]][2], digits = 3)`), which
+suggests some departure from a perfectly linear association. However, it adds
+`r income_factor_lrt[["Chi Df"]][2]` parameters, and the continuous model has the
+lower AIC by `r sprintf("%.1f", diff(income_factor_comparison$AIC))` points and
+the lower BIC by `r sprintf("%.1f", diff(income_factor_comparison$BIC))` points.
+The category-specific predictions also retain a broadly increasing ordinal
+pattern across roles (Spearman correlations =
+`r paste0(sprintf("%.2f", range(income_factor_trend$spearman_rho)), collapse = " to ")`),
+while the smallest income category contains only
+`r min(income_factor_counts$n_respondents)` respondents. We therefore retain
+standardised income as a continuous predictor in Figure 2: it captures the
+main gradient much more parsimoniously and yields more stable estimates,
+while the factor analysis documents the limited evidence for nonlinearity.
+
+## Full marginal effects: Supplementary Table 4 
+
+```{r s2-effects-table}
+
+tab_s4 <- eff_space |>
+  transmute(
+    Predictor,
+    Contrast = case_when(
+      Predictor == "Age" ~ "1-SD increase",
+      Predictor == "Income" ~ "1-SD increase",
+      Predictor == "Women vs men" ~ "Women vs men",
+      Predictor == "Employed vs not employed" ~ "Employed vs not employed",
+      TRUE ~ contrast
+    ),
+    Role = role,
+    `Difference (95% CI), pp` = sprintf(
+      "%.1f (%.1f, %.1f)",
+      estimate_pp,
+      conf.low_pp,
+      conf.high_pp
+    ),
+    `Difference in actions` = if_else(
+      is.na(actions),
+      "",
+      sprintf("%.2f", actions)
+    )
+  )
+
+table_s4 <- flextable(tab_s4) |>
+  set_header_labels(
+    Predictor = "Predictor",
+    Contrast = "Contrast",
+    Role = "Role",
+    `Difference (95% CI), pp` = "Difference (95% CI), pp",
+    `Difference in actions` = "Difference in actions"
+  ) |>
+  border_remove() |>
+  hline_top(
+    part = "header",
+    border = fp_border(color = "black", width = 1)
+  ) |>
+  hline_bottom(
+    part = "header",
+    border = fp_border(color = "black", width = 0.75)
+  ) |>
+  hline_bottom(
+    part = "body",
+    border = fp_border(color = "black", width = 1)
+  ) |>
+  font(fontname = "Arial", part = "all") |>
+  fontsize(size = 9, part = "all") |>
+  bold(part = "header") |>
+  align(
+    j = c("Predictor", "Contrast", "Role"),
+    align = "left",
+    part = "all"
+  ) |>
+  align(
+    j = c("Difference (95% CI), pp", "Difference in actions"),
+    align = "center",
+    part = "all"
+  ) |>
+  valign(valign = "center", part = "all") |>
+  padding(
+    padding.top = 2,
+    padding.bottom = 2,
+    padding.left = 3,
+    padding.right = 3,
+    part = "all"
+  ) |>
+  autofit()
+
+save_as_docx(
+  table_s4,
+  path = file.path(output_dir, "Table_S4.docx")
+)
+
+table_s4
+```
+
+## Age sensitivity for organisational opportunity 
+
+Because many respondents are retired, the age association with organisational
+opportunity may partly reflect whether respondents currently occupy an
+occupational role. We therefore repeat this analysis among employed and
+self-employed respondents.
+
+```{r s2-age-sensitivity}
+
+df_age_org <- df_long |>
+  filter(
+    occupation %in% c(1, 2, 3),
+    behaviour_role == "Organisational participant"
+  ) |>
+  drop_na(
+    is_relevant,
+    age_z,
+    gender_bin,
+    income_status,
+    income_filled_z
+  )
+
+m_age_org <- glmmTMB(
+  is_relevant ~
+    age_z +
+    gender_bin +
+    income_status +
+    income_filled_z +
+    (1 | response_id) +
+    (1 | behaviour_id),
+  family = binomial("logit"),
+  data = df_age_org
+)
+
+eff_age_org <- avg_comparisons(
+  m_age_org,
+  variables = "age_z",
+  type = "response"
+) |>
+  as_tibble() |>
+  mutate(
+    across(
+      c(estimate, conf.low, conf.high),
+      ~ .x * 100,
+      .names = "{.col}_pp"
+    )
+  )
+
+eff_age_org |>
+  select(
+    estimate_pp,
+    conf.low_pp,
+    conf.high_pp
+  )
+```
+
+## Leadership responsibility within the organisational role 
+
+The analysis compares the three measured levels of Leadership responsibility
+among employed respondents only.
+
+```{r s2-leadership}
+
+df_org_leadership <- df_long |>
+  filter(
+  occupation %in% c(1, 2),
+  behaviour_role == "Organisational participant"
+) |>
+  drop_na(
+    is_relevant,
+    leadership_cat,
+    age_z,
+    gender_bin,
+    income_status,
+    income_filled_z
+  ) |>
+  droplevels()
+
+message(
+  "Participants in leadership analysis: ",
+  n_distinct(df_org_leadership$response_id)
+)
+
+# Check the measured leadership categories before fitting the model
+df_org_leadership |>
+  distinct(response_id, leadership_cat) |>
+  count(leadership_cat)
+
+m_org_leadership <- 
+  glmmTMB(
+    is_relevant ~
+      leadership_cat +
+      age_z +
+      gender_bin +
+      income_status +
+      income_filled_z +
+      (1 | response_id) +
+      (1 | behaviour_id),
+    family = binomial("logit"),
+    data = df_org_leadership
+  )
+
+eff_org_leadership <- avg_comparisons(
+  m_org_leadership,
+  variables = list(leadership_cat = "reference"),
+  type = "response"
+) |>
+  as_tibble() |>
+  mutate(
+    Predictor = "Leadership responsibility",
+    across(
+      c(estimate, conf.low, conf.high),
+      ~ .x * 100,
+      .names = "{.col}_pp"
+    )
+  )
+
+eff_org_leadership |>
+  select(
+    Predictor,
+    contrast,
+    estimate_pp,
+    conf.low_pp,
+    conf.high_pp
+  )
+```
+
+---
+
+# Utilisation of the opportunity space
+
+Utilisation is defined as the share of actions in a respondent's opportunity
+space that they have already taken. Descriptively, this is summarised at the
+person level. Inferential analyses retain the person-action structure and are
+estimated on all relevant actions.
+
+```{r s3-population}
+message(
+  "Share of person-action observations in utilisation analyses: ",
+  round(nrow(df_relevant) / nrow(df_long), 3)
+)
+
+# Person-level descriptive statistics
+tab_utilisation <- df_person |>
+  summarise(
+    n = sum(!is.na(utilisation_share)),
+    mean = mean(utilisation_share, na.rm = TRUE),
+    sd = sd(utilisation_share, na.rm = TRUE),
+    median = median(utilisation_share, na.rm = TRUE),
+    q25 = quantile(utilisation_share, 0.25, na.rm = TRUE),
+    q75 = quantile(utilisation_share, 0.75, na.rm = TRUE)
+  )
+
+tab_utilisation
+
+# Descriptive utilisation by role
+tab_utilisation_role <- df_relevant |>
+  group_by(response_id, behaviour_role) |>
+  summarise(
+    n_relevant = n(),
+    n_taken = sum(is_taken, na.rm = TRUE),
+    utilisation_share = mean(is_taken, na.rm = TRUE),
+    .groups = "drop"
+  ) |>
+  group_by(behaviour_role) |>
+  summarise(
+    n = n(),
+    mean = mean(utilisation_share, na.rm = TRUE),
+    sd = sd(utilisation_share, na.rm = TRUE),
+    median = median(utilisation_share, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+tab_utilisation_role
+```
+
+## Predictors of utilisation, overall and by role
+
+The outcome is whether an action within the respondent's opportunity space has
+already been taken. Effects are expressed as percentage-point differences in
+the probability that a relevant action has been taken.
+
+```{r s3-models}
+preds_sociodem <- c(
+  "income_filled_z",
+  "age_z",
+  "gender_bin"
+)
+
+# Utilisation:
+# QoL is excluded because ratings refer to experienced impact for actions
+# already taken and expected impact for relevant actions not yet taken.
+preds_psych_util <- c(
+  "conversation_z",
+  "action_knowledge_z",
+  "attribution_z",
+  "techno_optimism_z",
+  "political_z"
+)
+
+preds_util <- c(
+  preds_sociodem,
+  preds_psych_util
+)
+
+# Perceived opportunity and motivation:
+# These analyses are restricted to relevant actions not yet taken, so QoL
+# always refers to expected quality-of-life impact.
+preds_psych_untaken <- c(
+  "qol_expected_z",
+  "conversation_z",
+  "action_knowledge_z",
+  "attribution_z",
+  "techno_optimism_z",
+  "political_z"
+)
+
+preds_untaken <- c(
+  preds_sociodem,
+  preds_psych_untaken
+)
+
+eff_taken <- 
+  fit_effects(
+    df_relevant,
+    "is_taken",
+    preds_util,
+    family = "binomial"
+  )
+
+eff_taken <- eff_taken |>
+  mutate(
+    construct = construct_levels[1],
+    across(
+      c(estimate, conf.low, conf.high),
+      ~ .x * 100,
+      .names = "{.col}_pp"
+    )
+  )
+
+eff_taken |>
+  filter(level == "Overall") |>
+  select(
+    Predictor,
+    estimate_pp,
+    conf.low_pp,
+    conf.high_pp
+  ) |>
+  arrange(desc(estimate_pp))
+```
+
+### Supplementary Table 5: full utilisation estimates
+
+```{r s3-table-s5}
+predictor_order_util <- c(
+  "Income",
+  "Age",
+  "Women vs men",
+  "Climate conversations",
+  "Action knowledge",
+  "Individual-attribution belief",
+  "Techno-optimism",
+  "Political orientation (right)"
+)
+
+predictor_order_untaken <- c(
+  "Income",
+  "Age",
+  "Women vs men",
+  "Expected quality-of-life impact",
+  "Climate conversations",
+  "Action knowledge",
+  "Individual-attribution belief",
+  "Techno-optimism",
+  "Political orientation (right)"
+)
+
+role_order_s3 <- c(
+  "Overall",
+  "Consumer (technology)",
+  "Consumer (curtailment)",
+  "Organisational participant",
+  "Investor",
+  "Citizen",
+  "Social role model"
+)
+
+tab_s5 <- eff_taken |>
+  mutate(
+    Predictor = factor(
+      Predictor,
+      levels = predictor_order_util
+    ),
+    Role = factor(
+      level,
+      levels = role_order_s3
+    )
+  ) |>
+  transmute(
+    Predictor,
+    Role,
+    `Difference (pp)` = estimate_pp,
+    `95% CI lower` = conf.low_pp,
+    `95% CI upper` = conf.high_pp
+  ) |>
+  arrange(Predictor, Role)
+
+table_s5 <- flextable(tab_s5) |>
+  colformat_double(
+    j = c(
+      "Difference (pp)",
+      "95% CI lower",
+      "95% CI upper"
+    ),
+    digits = 1
+  ) |>
+  border_remove() |>
+  hline_top(
+    part = "header",
+    border = fp_border(
+      color = "black",
+      width = 1
+    )
+  ) |>
+  hline_bottom(
+    part = "header",
+    border = fp_border(
+      color = "black",
+      width = 0.75
+    )
+  ) |>
+  hline_bottom(
+    part = "body",
+    border = fp_border(
+      color = "black",
+      width = 1
+    )
+  ) |>
+  bold(part = "header") |>
+  align(
+    j = c(
+      "Difference (pp)",
+      "95% CI lower",
+      "95% CI upper"
+    ),
+    align = "center",
+    part = "all"
+  ) |>
+  font(
+    fontname = "Arial",
+    part = "all"
+  ) |>
+  fontsize(
+    size = 9,
+    part = "all"
+  ) |>
+  padding(
+    padding.top = 2,
+    padding.bottom = 2,
+    padding.left = 3,
+    padding.right = 3,
+    part = "all"
+  ) |>
+  autofit()
+
+save_as_docx(
+  table_s5,
+  path = file.path(
+    output_dir,
+    "Table_S5.docx"
+  )
+)
+
+table_s5
+```
+
+## Income: technology adoption versus curtailment
+
+Examining income differences in curtailment vs technology adoption.
+
+```{r s3-income-contrast}
+# Refit the income model underlying the primary utilisation analysis so that
+# the technology-versus-curtailment difference can be tested directly.
+
+df_income_util <- df_relevant |>
+  drop_na(
+    is_taken,
+    income_filled_z,
+    gender_bin,
+    age_z,
+    income_status
+  )
+
+m_income_util <- glmmTMB(
+  is_taken ~
+    income_filled_z * behaviour_role +
+    gender_bin +
+    age_z +
+    income_status +
+    (1 | response_id) +
+    (1 | behaviour_id),
+  family = binomial("logit"),
+  data = df_income_util
+)
+
+inc_by_role <- avg_comparisons(
+  m_income_util,
+  variables = "income_filled_z",
+  by = "behaviour_role",
+  type = "response"
+)
+
+inc_by_role_pp <- inc_by_role |>
+  as_tibble() |>
+  mutate(
+    across(
+      c(estimate, conf.low, conf.high),
+      ~ .x * 100,
+      .names = "{.col}_pp"
+    )
+  )
+
+inc_by_role_pp |>
+  select(
+    behaviour_role,
+    estimate_pp,
+    conf.low_pp,
+    conf.high_pp
+  )
+
+# Test whether the income association differs between consumer technology
+# adoption and consumer curtailment.
+stopifnot(
+  as.character(inc_by_role$behaviour_role[1]) ==
+    "Consumer (technology)",
+  as.character(inc_by_role$behaviour_role[2]) ==
+    "Consumer (curtailment)"
+)
+
+inc_tech_vs_curt <- avg_comparisons(
+  m_income_util,
+  variables = "income_filled_z",
+  by = "behaviour_role",
+  type = "response",
+  hypothesis = "b1 - b2 = 0"
+)
+
+inc_tech_vs_curt
+```
+
+## Does leadership responsibility translate into organisational action?
+
+Among employed respondents for whom the organisational actions are relevant.
+Self-employed respondents are excluded because the leadership item was not
+administered to them.
+
+```{r s3-leadership}
+df_lead_taken <- df_emp |>
+  filter(
+    behaviour_id %in% c(12, 13),
+    action_status != "Not relevant",
+    leadership_cat != "Self-employed"
+  ) |>
+  droplevels()
+
+# Descriptive uptake by organisational action and leadership responsibility
+df_lead_taken |>
+  group_by(
+    behaviour_id,
+    leadership_cat
+  ) |>
+  summarise(
+    n = n(),
+    pct_taken = round(
+      100 * mean(action_status == "Already taken"),
+      1
+    ),
+    .groups = "drop"
+  )
+
+m_lead_taken <- glmmTMB(
+  is_taken ~
+    leadership_cat +
+    factor(behaviour_id) +
+    (1 | response_id),
+  family = binomial("logit"),
+  data = df_lead_taken
+)
+
+eff_lead_taken <- avg_comparisons(
+  m_lead_taken,
+  variables = list(
+    leadership_cat = "reference"
+  ),
+  type = "response"
+) |>
+  as_tibble() |>
+  mutate(
+    across(
+      c(estimate, conf.low, conf.high),
+      ~ .x * 100,
+      .names = "{.col}_pp"
+    )
+  )
+
+eff_lead_taken |>
+  select(
+    contrast,
+    estimate_pp,
+    conf.low_pp,
+    conf.high_pp
+  )
+```
+
+## Sensitivity: action uptake without conditioning on opportunity
+
+The primary analysis conditions on respondents' classification of an action as
+part of their opportunity space. As a sensitivity analysis, we repeat the
+analysis across all 18 actions. This analysis does not depend on how many
+untaken actions respondents classify as not relevant, but it combines
+opportunity and utilisation and is therefore not treated as the primary
+measure of utilisation.
+
+```{r s3-sensitivity-all-actions}
+df_all_taken <- df_long |>
+  mutate(
+    is_taken_all = as.integer(
+      action_status == "Already taken"
+    )
+  )
+
+eff_taken_all <- 
+  fit_effects(
+    df_all_taken,
+    "is_taken_all",
+    preds_util,
+    family = "binomial"
+  )
+
+eff_taken_all <- eff_taken_all |>
+  mutate(
+    across(
+      c(estimate, conf.low, conf.high),
+      ~ .x * 100,
+      .names = "{.col}_pp"
+    )
+  )
+
+# Inspect overall sensitivity estimates
+eff_taken_all |>
+  filter(level == "Overall") |>
+  select(
+    Predictor,
+    estimate_pp,
+    conf.low_pp,
+    conf.high_pp
+  ) |>
+  arrange(desc(estimate_pp))
+
+
+### Supplementary Table 7: sensitivity to conditioning on opportunity
+tab_s7 <- eff_taken |>
+  filter(level == "Overall") |>
+  select(
+    term,
+    Predictor,
+    primary = estimate_pp,
+    primary_low = conf.low_pp,
+    primary_high = conf.high_pp
+  ) |>
+  left_join(
+    eff_taken_all |>
+      filter(level == "Overall") |>
+      select(
+        term,
+        sensitivity = estimate_pp,
+        sensitivity_low = conf.low_pp,
+        sensitivity_high = conf.high_pp
+      ),
+    by = "term"
+  ) |>
+  mutate(
+    Predictor = factor(
+      Predictor,
+      levels = predictor_order_util
+    )
+  ) |>
+  transmute(
+    Predictor,
+    `Utilisation within opportunity space` = sprintf(
+      "%.1f (%.1f, %.1f)",
+      primary,
+      primary_low,
+      primary_high
+    ),
+    `Action uptake across all actions` = sprintf(
+      "%.1f (%.1f, %.1f)",
+      sensitivity,
+      sensitivity_low,
+      sensitivity_high
+    )
+  ) |>
+  arrange(Predictor)
+
+table_s7 <- flextable(tab_s7) |>
+  set_header_labels(
+    Predictor = "Predictor",
+    `Utilisation within opportunity space` =
+      "Utilisation within opportunity space, pp (95% CI)",
+    `Action uptake across all actions` =
+      "Action uptake across all actions, pp (95% CI)"
+  ) |>
+  border_remove() |>
+  hline_top(
+    part = "header",
+    border = fp_border(
+      color = "black",
+      width = 1
+    )
+  ) |>
+  hline_bottom(
+    part = "header",
+    border = fp_border(
+      color = "black",
+      width = 0.75
+    )
+  ) |>
+  hline_bottom(
+    part = "body",
+    border = fp_border(
+      color = "black",
+      width = 1
+    )
+  ) |>
+  bold(part = "header") |>
+  align(
+    j = 1,
+    align = "left",
+    part = "all"
+  ) |>
+  align(
+    j = 2:3,
+    align = "center",
+    part = "all"
+  ) |>
+  font(
+    fontname = "Arial",
+    part = "all"
+  ) |>
+  fontsize(
+    size = 9,
+    part = "all"
+  ) |>
+  padding(
+    padding.top = 2,
+    padding.bottom = 2,
+    padding.left = 3,
+    padding.right = 3,
+    part = "all"
+  ) |>
+  autofit()
+
+save_as_docx(
+  table_s7,
+  path = file.path(
+    output_dir,
+    "Table_S7.docx"
+  )
+)
+
+table_s7
+```
+
+# Perceived opportunity and motivation for untaken actions
+
+Analyses are restricted to actions that respondents classified as relevant but
+had not yet taken. Perceived opportunity captures respondents' perceived ability to undertake
+actions they already consider relevant. It excludes actions classified as not relevant.
+
+## Descriptive patterns
+
+```{r s4-descriptives}
+message(
+  "Share of person-action observations in opportunity/motivation analyses: ",
+  round(nrow(df_untaken) / nrow(df_long), 3)
+)
+
+message(
+  "Number of person-action observations in opportunity/motivation analyses: ",
+  nrow(df_untaken)
+)
+
+message(
+  "Number of respondents contributing to opportunity/motivation analyses: ",
+  n_distinct(df_untaken$response_id)
+)
+
+# Overall descriptives
+tab_s4_desc_overall <- df_untaken |>
+  summarise(
+    n_opportunity = sum(!is.na(opportunity)),
+    opportunity_mean = mean(opportunity, na.rm = TRUE),
+    opportunity_sd = sd(opportunity, na.rm = TRUE),
+    opportunity_median = median(opportunity, na.rm = TRUE),
+    n_motivation = sum(!is.na(motivation)),
+    motivation_mean = mean(motivation, na.rm = TRUE),
+    motivation_sd = sd(motivation, na.rm = TRUE),
+    motivation_median = median(motivation, na.rm = TRUE)
+  )
+
+tab_s4_desc_overall
+
+# Descriptives by role
+tab_s4_desc_role <- df_untaken |>
+  group_by(behaviour_role) |>
+  summarise(
+    n = n(),
+    respondents = n_distinct(response_id),
+    opportunity_mean = mean(opportunity, na.rm = TRUE),
+    opportunity_sd = sd(opportunity, na.rm = TRUE),
+    motivation_mean = mean(motivation, na.rm = TRUE),
+    motivation_sd = sd(motivation, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+tab_s4_desc_role
+
+# Descriptives by action
+tab_s4_desc_action <- df_untaken |>
+  group_by(
+    behaviour_id,
+    behaviour_name,
+    behaviour_role
+  ) |>
+  summarise(
+    n = n(),
+    opportunity_mean = mean(opportunity, na.rm = TRUE),
+    opportunity_sd = sd(opportunity, na.rm = TRUE),
+    motivation_mean = mean(motivation, na.rm = TRUE),
+    motivation_sd = sd(motivation, na.rm = TRUE),
+    .groups = "drop"
+  ) |>
+  arrange(
+    behaviour_role,
+    behaviour_id
+  )
+
+tab_s4_desc_action
+```
+
+## Predictors of perceived opportunity and motivation
+
+Separate multilevel models are estimated for perceived opportunity and
+motivation among relevant, untaken actions. QoL is expected quality-of-life impact in these models because the
+analytical sample is restricted to relevant actions not yet taken.
+
+```{r s4-models}
+eff_opp <- fit_effects(
+  df_untaken,
+  "opportunity",
+  preds_untaken,
+  family = "gaussian"
+) |>
+  mutate(
+    construct = "Perceived opportunity"
+  )
+
+eff_mot <- fit_effects(
+  df_untaken,
+  "motivation",
+  preds_untaken,
+  family = "gaussian"
+) |>
+  mutate(
+    construct = "Motivation"
+  )
+
+effects_s4 <- bind_rows(
+  eff_opp,
+  eff_mot
+) |>
+  mutate(
+    construct = factor(
+      construct,
+      levels = c(
+        "Perceived opportunity",
+        "Motivation"
+      )
+    )
+  )
+
+# Overall estimates
+effects_s4 |>
+  filter(level == "Overall") |>
+  select(
+    construct,
+    Predictor,
+    estimate,
+    conf.low,
+    conf.high
+  ) |>
+  arrange(
+    construct,
+    desc(estimate)
+  ) |>
+  print(n = 30)
+```
+
+### Supplementary Table 8: predictors of perceived opportunity and motivation
+
+```{r s4-table-s8}
+role_order_s4 <- c(
+  "Overall",
+  "Consumer (technology)",
+  "Consumer (curtailment)",
+  "Organisational participant",
+  "Investor",
+  "Citizen",
+  "Social role model"
+)
+
+tab_s8 <- effects_s4 |>
+  mutate(
+    Predictor = factor(
+      Predictor,
+      levels = predictor_order_untaken
+    ),
+    Role = factor(
+      level,
+      levels = role_order_s4
+    )
+  ) |>
+  transmute(
+    Construct = construct,
+    Predictor,
+    Role,
+    Estimate = estimate,
+    `95% CI lower` = conf.low,
+    `95% CI upper` = conf.high
+  ) |>
+  arrange(
+    Construct,
+    Predictor,
+    Role
+  )
+
+table_s8 <- flextable(tab_s8) |>
+  colformat_double(
+    j = c(
+      "Estimate",
+      "95% CI lower",
+      "95% CI upper"
+    ),
+    digits = 2
+  ) |>
+  border_remove() |>
+  hline_top(
+    part = "header",
+    border = fp_border(
+      color = "black",
+      width = 1
+    )
+  ) |>
+  hline_bottom(
+    part = "header",
+    border = fp_border(
+      color = "black",
+      width = 0.75
+    )
+  ) |>
+  hline_bottom(
+    part = "body",
+    border = fp_border(
+      color = "black",
+      width = 1
+    )
+  ) |>
+  bold(part = "header") |>
+  align(
+    j = c(
+      "Estimate",
+      "95% CI lower",
+      "95% CI upper"
+    ),
+    align = "center",
+    part = "all"
+  ) |>
+  font(
+    fontname = "Arial",
+    part = "all"
+  ) |>
+  fontsize(
+    size = 9,
+    part = "all"
+  ) |>
+  padding(
+    padding.top = 2,
+    padding.bottom = 2,
+    padding.left = 3,
+    padding.right = 3,
+    part = "all"
+  ) |>
+  autofit()
+
+save_as_docx(
+  table_s8,
+  path = file.path(
+    output_dir,
+    "Table_S8.docx"
+  )
+)
+
+table_s8
+```
+
+## Sensitivity analysis: climate conversations and overlapping social-role action
+Action 15 ("Talk with family/friends about climate action") overlaps conceptually with the 
+climate-conversations predictor, which includes the frequency with which climate change 
+or climate action is discussed with family/household and friends/acquaintances. 
+We therefore re-estimate the climate-conversations associations after excluding action 15.
+
+This sensitivity analysis assesses whether the overall association and, especially, 
+the association for social role-model actions are driven by this item overlap.
+```{r}
+df_relevant_no_talk <- df_relevant |>
+  filter(behaviour_id != 15)
+
+df_untaken_no_talk <- df_untaken |>
+  filter(behaviour_id != 15)
+
+
+# Utilisation
+eff_conv_taken_no_talk <- fit_effects(
+  df_relevant_no_talk,
+  "is_taken",
+  "conversation_z",
+  family = "binomial"
+) |>
+  mutate(
+    construct = "Utilisation",
+    across(
+      c(estimate, conf.low, conf.high),
+      ~ .x * 100,
+      .names = "{.col}_pp"
+    )
+  )
+
+
+# Perceived opportunity
+eff_conv_opp_no_talk <- fit_effects(
+  df_untaken_no_talk,
+  "opportunity",
+  "conversation_z",
+  family = "gaussian"
+) |>
+  mutate(
+    construct = "Perceived opportunity"
+  )
+
+
+# Motivation
+eff_conv_mot_no_talk <- fit_effects(
+  df_untaken_no_talk,
+  "motivation",
+  "conversation_z",
+  family = "gaussian"
+) |>
+  mutate(
+    construct = "Motivation"
+  )
+
+
+# Compare primary and action-15-excluded estimates
+conv_sensitivity <- bind_rows(
+
+  # Utilisation
+  eff_taken |>
+    filter(term == "conversation_z") |>
+    transmute(
+      construct = "Utilisation",
+      level,
+      specification = "Primary",
+      estimate = estimate_pp,
+      conf.low = conf.low_pp,
+      conf.high = conf.high_pp
+    ),
+
+  eff_conv_taken_no_talk |>
+    transmute(
+      construct,
+      level,
+      specification = "Action 15 excluded",
+      estimate = estimate_pp,
+      conf.low = conf.low_pp,
+      conf.high = conf.high_pp
+    ),
+
+  # Perceived opportunity
+  eff_opp |>
+    filter(term == "conversation_z") |>
+    transmute(
+      construct = "Perceived opportunity",
+      level,
+      specification = "Primary",
+      estimate,
+      conf.low,
+      conf.high
+    ),
+
+  eff_conv_opp_no_talk |>
+    transmute(
+      construct,
+      level,
+      specification = "Action 15 excluded",
+      estimate,
+      conf.low,
+      conf.high
+    ),
+
+  # Motivation
+  eff_mot |>
+    filter(term == "conversation_z") |>
+    transmute(
+      construct = "Motivation",
+      level,
+      specification = "Primary",
+      estimate,
+      conf.low,
+      conf.high
+    ),
+
+  eff_conv_mot_no_talk |>
+    transmute(
+      construct,
+      level,
+      specification = "Action 15 excluded",
+      estimate,
+      conf.low,
+      conf.high
+    )
+) |>
+  filter(
+    level %in% c(
+      "Overall",
+      "Social role model"
+    )
+  ) |>
+  arrange(
+    construct,
+    level,
+    specification
+  )
+
+conv_sensitivity
+
+### Supplementary Table 6: climate-conversations sensitivity analysis
+
+tab_s6 <- conv_sensitivity |>
+  mutate(
+    construct = factor(
+      construct,
+      levels = c(
+        "Utilisation",
+        "Perceived opportunity",
+        "Motivation"
+      )
+    ),
+    level = factor(
+      level,
+      levels = c(
+        "Overall",
+        "Social role model"
+      )
+    ),
+    specification = factor(
+      specification,
+      levels = c(
+        "Primary",
+        "Action 15 excluded"
+      ),
+      labels = c(
+        "Primary analysis",
+        "Excluding overlapping action"
+      )
+    ),
+    estimate_ci = case_when(
+      construct == "Utilisation" ~ sprintf(
+        "%.1f pp (%.1f, %.1f)",
+        estimate, conf.low, conf.high
+      ),
+      TRUE ~ sprintf(
+        "%.2f (%.2f, %.2f)",
+        estimate, conf.low, conf.high
+      )
+    )
+  ) |>
+  arrange(
+    construct,
+    level,
+    specification
+  ) |>
+  select(
+    Construct = construct,
+    Role = level,
+    Specification = specification,
+    `Estimate (95% CI)` = estimate_ci
+  )
+
+tab_s6
+
+ft_s6 <- flextable::flextable(tab_s6) |>
+  flextable::font(
+    fontname = "Arial",
+    part = "all"
+  ) |>
+  flextable::fontsize(
+    size = 9,
+    part = "all"
+  ) |>
+  flextable::bold(
+    part = "header"
+  ) |>
+  flextable::align(
+    align = "left",
+    part = "all"
+  ) |>
+  flextable::valign(
+    valign = "center",
+    part = "all"
+  ) |>
+  flextable::autofit()
+
+
+flextable::save_as_docx(
+  `Supplementary Table 6` = ft_s6,
+  path = file.path(
+    output_dir,
+    "Table_S6.docx"
+  )
+)
+```
+
+
+## Within-person coupling between perceived opportunity and motivation
+
+Perceived opportunity and motivation are conceptually distinct: being able to
+take an action does not imply being motivated to take it. However, respondents'
+perceptions of their opportunities may be related to their motivation. We
+therefore test whether, within individuals, actions perceived as more feasible
+than their other relevant, untaken actions are also rated as more motivating.
+
+```{r s4-coupling}
+df_coupling <- df_untaken |>
+  filter(
+    !is.na(opportunity),
+    !is.na(motivation)
+  ) |>
+  group_by(response_id) |>
+  mutate(
+    opportunity_person_mean = mean(
+      opportunity,
+      na.rm = TRUE
+    ),
+    opportunity_within = opportunity -
+      opportunity_person_mean
+  ) |>
+  ungroup() |>
+  mutate(
+    # Standardise the within-person deviation and person mean separately.
+    # The within-person coefficient therefore corresponds to a 1-SD
+    # within-person difference in perceived opportunity.
+    opportunity_within_z = as.numeric(
+      scale(opportunity_within)
+    ),
+    opportunity_person_mean_z = as.numeric(
+      scale(opportunity_person_mean)
+    ),
+    motivation_z = as.numeric(
+      scale(motivation)
+    )
+  )
+
+message(
+  "Person-action observations in coupling analysis: ",
+  nrow(df_coupling)
+)
+
+message(
+  "Respondents in coupling analysis: ",
+  n_distinct(df_coupling$response_id)
+)
+
+# Respondents need variation across at least two untaken actions to identify
+# the within-person association.
+tab_within_information <- df_coupling |>
+  group_by(response_id) |>
+  summarise(
+    n_actions = n(),
+    sd_opportunity = sd(opportunity),
+    .groups = "drop"
+  ) |>
+  summarise(
+    respondents = n(),
+    respondents_multiple_actions = sum(n_actions >= 2),
+    respondents_with_opportunity_variation =
+      sum(n_actions >= 2 & sd_opportunity > 0, na.rm = TRUE)
+  )
+
+tab_within_information
+
+
+# Primary coupling model
+m_coupling <- glmmTMB(
+  motivation_z ~
+    opportunity_within_z +
+    opportunity_person_mean_z +
+    factor(behaviour_id) +
+    (1 | response_id),
+  family = gaussian(),
+  data = df_coupling
+)
+
+coupling_overall <- broom.mixed::tidy(
+  m_coupling,
+  effects = "fixed",
+  conf.int = TRUE
+) |>
+  filter(
+    term %in% c(
+      "opportunity_within_z",
+      "opportunity_person_mean_z"
+    )
+  )
+
+coupling_overall
+```
+
+### Do within-person associations vary across roles?
+
+```{r s4-coupling-role}
+m_coupling_role <- glmmTMB(
+  motivation_z ~
+    factor(behaviour_id) +
+    opportunity_person_mean_z +
+    opportunity_within_z:behaviour_role +
+    (1 | response_id),
+  family = gaussian(),
+  data = df_coupling
+)
+
+coupling_role <- broom.mixed::tidy(
+  m_coupling_role,
+  effects = "fixed",
+  conf.int = TRUE
+) |>
+  filter(
+    str_detect(
+      term,
+      "opportunity_within_z:behaviour_role"
+    )
+  )
+
+coupling_role
+```
+
+### Supplementary Table 9: action-specific opportunity-motivation correlations
+
+```{r s4-table-s9}
+tab_s9 <- df_coupling |>
+  group_by(
+    behaviour_id,
+    behaviour_name,
+    behaviour_role
+  ) |>
+  summarise(
+    n = n(),
+    r = cor(
+      opportunity,
+      motivation,
+      use = "complete.obs",
+      method = "pearson"
+    ),
+    .groups = "drop"
+  ) |>
+  mutate(
+    fisher_z = atanh(r),
+    se_z = 1 / sqrt(n - 3),
+    ci_low = tanh(
+      fisher_z - 1.96 * se_z
+    ),
+    ci_high = tanh(
+      fisher_z + 1.96 * se_z
+    ),
+    Action = short_labels[
+      as.character(behaviour_id)
+    ]
+  ) |>
+  transmute(
+    Action,
+    Role = behaviour_role,
+    n,
+    r,
+    `95% CI lower` = ci_low,
+    `95% CI upper` = ci_high
+  ) |>
+  arrange(
+    Role,
+    desc(r)
+  )
+
+table_s9 <- flextable(tab_s9) |>
+  colformat_double(
+    j = c(
+      "r",
+      "95% CI lower",
+      "95% CI upper"
+    ),
+    digits = 2
+  ) |>
+  border_remove() |>
+  hline_top(
+    part = "header",
+    border = fp_border(
+      color = "black",
+      width = 1
+    )
+  ) |>
+  hline_bottom(
+    part = "header",
+    border = fp_border(
+      color = "black",
+      width = 0.75
+    )
+  ) |>
+  hline_bottom(
+    part = "body",
+    border = fp_border(
+      color = "black",
+      width = 1
+    )
+  ) |>
+  bold(part = "header") |>
+  align(
+    j = c(
+      "n",
+      "r",
+      "95% CI lower",
+      "95% CI upper"
+    ),
+    align = "center",
+    part = "all"
+  ) |>
+  font(
+    fontname = "Arial",
+    part = "all"
+  ) |>
+  fontsize(
+    size = 9,
+    part = "all"
+  ) |>
+  padding(
+    padding.top = 2,
+    padding.bottom = 2,
+    padding.left = 3,
+    padding.right = 3,
+    part = "all"
+  ) |>
+  autofit()
+
+save_as_docx(
+  table_s9,
+  path = file.path(
+    output_dir,
+    "Table_S9.docx"
+  )
+)
+
+table_s9
+```
+
+---
+
+# Expected and experienced quality-of-life impacts
+
+This section compares expected quality-of-life impacts for relevant, untaken
+actions with experienced impacts for actions respondents have already taken.
+
+## Expected and experienced quality-of-life impacts
+
+Create an analysis sample containing relevant actions for which respondents
+either reported an expected quality-of-life impact or an experienced
+quality-of-life impact.
+
+```{r s5-population}
+df_qol <- df_long |>
+  filter(
+    action_status != "Not relevant",
+    !is.na(qol)
+  ) |>
+  mutate(
+    taken = as.integer(
+      action_status == "Already taken"
+    ),
+    qol_status = factor(
+      if_else(
+        taken == 1,
+        "Experienced",
+        "Expected"
+      ),
+      levels = c(
+        "Expected",
+        "Experienced"
+      )
+    )
+  )
+
+message(
+  "Person-action observations in quality-of-life analyses: ",
+  nrow(df_qol)
+)
+
+message(
+  "Respondents contributing to quality-of-life analyses: ",
+  n_distinct(df_qol$response_id)
+)
+
+df_qol |>
+  count(qol_status)
+```
+
+### Descriptive ratings by action and status
+
+```{r s5-descriptives}
+tab_qol_action_raw <- df_qol |>
+  group_by(
+    behaviour_id,
+    behaviour_name,
+    behaviour_role,
+    qol_status
+  ) |>
+  summarise(
+    n = n(),
+    mean = mean(qol, na.rm = TRUE),
+    sd = sd(qol, na.rm = TRUE),
+    median = median(qol, na.rm = TRUE),
+    se = sd / sqrt(n),
+    conf.low = mean - qt(0.975, df = n - 1) * se,
+    conf.high = mean + qt(0.975, df = n - 1) * se,
+    .groups = "drop"
+  ) |>
+  arrange(
+    behaviour_id,
+    qol_status
+  )
+
+tab_qol_action_raw
+
+# Raw descriptive means and confidence intervals for Figure 4 and Table S10
+qol_levels_action_raw <- tab_qol_action_raw |>
+  transmute(
+    behaviour_id = as.integer(as.character(behaviour_id)),
+    action = short_labels[as.character(behaviour_id)],
+    role = as.character(behaviour_role),
+    qol_status,
+    n,
+    estimate = mean,
+    conf.low,
+    conf.high
+  )
+```
+
+### Covariate-adjusted between-person model
+
+The model estimates experienced-minus-expected differences for each action,
+adjusting for income, age and gender and accounting for repeated observations
+within respondents. The descriptive ratings shown in Figure 4 are raw means.
+
+```{r s5-between-model}
+df_qol_between <- df_qol |>
+  drop_na(
+    qol,
+    income_filled_z,
+    age_z,
+    gender_bin
+  )
+
+m_qol_between <- glmmTMB(
+  qol ~
+    qol_status * factor(behaviour_id) +
+    income_filled_z +
+    income_status +
+    age_z +
+    gender_bin +
+    (1 | response_id),
+  family = gaussian(),
+  data = df_qol_between
+)
+```
+
+### Adjusted experienced-minus-expected differences
+
+```{r s5-between-differences}
+qol_between_gap <- avg_comparisons(
+  m_qol_between,
+  variables = list(
+    qol_status = c(
+      "Expected",
+      "Experienced"
+    )
+  ),
+  by = "behaviour_id"
+) |>
+  as_tibble() |>
+  mutate(
+    behaviour_id = as.integer(
+      as.character(behaviour_id)
+    ),
+    action = short_labels[
+      as.character(behaviour_id)
+    ]
+  )
+
+qol_between_gap |>
+  select(
+    behaviour_id,
+    action,
+    estimate,
+    conf.low,
+    conf.high
+  ) |>
+  arrange(behaviour_id)
+```
+
+### Overall adjusted difference
+
+```{r s5-between-overall}
+qol_between_overall <- avg_comparisons(
+  m_qol_between,
+  variables = list(
+    qol_status = c(
+      "Expected",
+      "Experienced"
+    )
+  )
+) |>
+  as_tibble()
+
+qol_between_overall
+```
+
+The estimates above are adjusted between-person comparisons. They compare
+respondents who have taken an action with respondents for whom the same action
+remains untaken and therefore do not estimate the effect of taking the action.
+
+
+## Within-person difference in quality-of-life ratings
+
+The between-person comparison may partly reflect stable differences between respondents. 
+We therefore decomposed action status into each respondent's proportion of relevant actions 
+already taken and the deviation of each action's status from this respondent-level mean.
+The within-person coefficient compares quality-of-life ratings for taken and untaken actions 
+within the same respondent, while action fixed effects account for systematic differences 
+in ratings between actions. This controls for stable respondent-level differences but remains 
+observational because respondents may selectively take actions they already expect to affect
+their quality of life more positively.
+
+```{r s5-within-data}
+df_qol_within <- df_qol |>
+  group_by(response_id) |>
+  mutate(
+    taken_person_mean = mean(
+      taken,
+      na.rm = TRUE
+    ),
+    taken_within = taken -
+      taken_person_mean
+  ) |>
+  ungroup()
+
+tab_qol_within_information <- df_qol_within |>
+  group_by(response_id) |>
+  summarise(
+    n_actions = n(),
+    n_taken = sum(taken == 1),
+    n_untaken = sum(taken == 0),
+    has_within_variation =
+      any(taken == 1) &
+      any(taken == 0),
+    .groups = "drop"
+  ) |>
+  summarise(
+    respondents = n(),
+    respondents_within_variation =
+      sum(has_within_variation)
+  )
+
+tab_qol_within_information
+```
+
+### Overall within-person model
+
+Action fixed effects account for systematic differences in quality-of-life
+ratings between the 18 actions.
+
+```{r s5-within-model}
+m_qol_within <- glmmTMB(
+  qol ~
+    taken_within +
+    taken_person_mean +
+    factor(behaviour_id) +
+    (1 | response_id),
+  family = gaussian(),
+  data = df_qol_within
+)
+
+qol_within_overall <- broom.mixed::tidy(
+  m_qol_within,
+  effects = "fixed",
+  conf.int = TRUE
+) |>
+  filter(
+    term %in% c(
+      "taken_within",
+      "taken_person_mean"
+    )
+  )
+
+qol_within_overall
+```
+
+The coefficient for taken_person_mean captures the between-person association between 
+respondents' overall proportion of relevant actions already taken and their quality-of-life ratings, 
+conditional on the within-person action-status component and action fixed effects.
+
+## Sensitivity to adjustment for psychological and social characteristics
+
+The primary between-person model adjusts for income, age and gender. As a
+sensitivity analysis, we additionally adjust for perceived action knowledge,
+climate conversations, individual-attribution belief, techno-optimism and
+political orientation. Because adding these covariates can change the analysis
+sample through missingness, the demographic and fully adjusted specifications
+are compared on the same complete-case sample. This analysis is a robustness
+check rather than a preferred causal specification, because some of the
+additional covariates may themselves be related to prior climate action.
+
+```{r s5-sensitivity-data}
+df_qol_sensitivity <- df_qol_between |>
+  filter(
+    complete.cases(
+      action_knowledge_z,
+      conversation_z,
+      attribution_z,
+      techno_optimism_z,
+      political_z
+    )
+  ) |>
+  droplevels()
+
+message(
+  "Person-action observations in QoL sensitivity sample: ",
+  nrow(df_qol_sensitivity)
+)
+
+message(
+  "Respondents in QoL sensitivity sample: ",
+  n_distinct(df_qol_sensitivity$response_id)
+)
+```
+
+### Same-sample demographic and fully adjusted models
+
+```{r s5-sensitivity-models}
+m_qol_between_demog_cc <- glmmTMB(
+  qol ~
+    qol_status * factor(behaviour_id) +
+    income_filled_z +
+    income_status +
+    age_z +
+    gender_bin +
+    (1 | response_id),
+  family = gaussian(),
+  data = df_qol_sensitivity
+)
+
+m_qol_between_full_cc <- glmmTMB(
+  qol ~
+    qol_status * factor(behaviour_id) +
+    income_filled_z +
+    income_status +
+    age_z +
+    gender_bin +
+    action_knowledge_z +
+    conversation_z +
+    attribution_z +
+    techno_optimism_z +
+    political_z +
+    (1 | response_id),
+  family = gaussian(),
+  data = df_qol_sensitivity
+)
+```
+
+### Overall sensitivity estimates
+
+```{r s5-sensitivity-overall}
+qol_sensitivity_overall <- bind_rows(
+  avg_comparisons(
+    m_qol_between_demog_cc,
+    variables = list(
+      qol_status = c(
+        "Expected",
+        "Experienced"
+      )
+    )
+  ) |>
+    as_tibble() |>
+    mutate(
+      model = "Demographic adjustment"
+    ),
+
+  avg_comparisons(
+    m_qol_between_full_cc,
+    variables = list(
+      qol_status = c(
+        "Expected",
+        "Experienced"
+      )
+    )
+  ) |>
+    as_tibble() |>
+    mutate(
+      model = "Additional psychological adjustment"
+    )
+) |>
+  select(
+    model,
+    contrast,
+    estimate,
+    conf.low,
+    conf.high
+  )
+
+qol_sensitivity_overall
+```
+
+### Action-specific sensitivity estimates
+
+```{r s5-sensitivity-action}
+qol_sensitivity_action <- bind_rows(
+  avg_comparisons(
+    m_qol_between_demog_cc,
+    variables = list(
+      qol_status = c(
+        "Expected",
+        "Experienced"
+      )
+    ),
+    by = "behaviour_id"
+  ) |>
+    as_tibble() |>
+    mutate(
+      model = "Demographic adjustment"
+    ),
+
+  avg_comparisons(
+    m_qol_between_full_cc,
+    variables = list(
+      qol_status = c(
+        "Expected",
+        "Experienced"
+      )
+    ),
+    by = "behaviour_id"
+  ) |>
+    as_tibble() |>
+    mutate(
+      model = "Additional psychological adjustment"
+    )
+) |>
+  mutate(
+    behaviour_id = as.integer(
+      as.character(behaviour_id)
+    ),
+    action = short_labels[
+      as.character(behaviour_id)
+    ]
+  ) |>
+  select(
+    behaviour_id,
+    action,
+    model,
+    estimate,
+    conf.low,
+    conf.high
+  ) |>
+  arrange(
+    behaviour_id,
+    model
+  )
+
+qol_sensitivity_action |>
+  print(n = 36)
+
+
+
+```
+
+The sensitivity analysis should be interpreted by comparing the same-sample
+estimates above. A similar estimate after additional adjustment indicates that
+the expected-experienced difference is not readily accounted for by the
+measured psychological and social characteristics. It does not remove
+action-specific selection into taking an action and therefore does not identify
+a causal effect of action uptake.
+
+## Socioeconomic differences in quality-of-life impacts
+
+```{r}
+# Expected QoL: actions in the remaining opportunity space
+df_qol_expected_income <- df_qol |>
+  filter(qol_status == "Expected") |>
+  drop_na(
+    qol,
+    income_filled_z,
+    income_status,
+    age_z,
+    gender_bin,
+    behaviour_role
+  ) |>
+  droplevels()
+
+m_qol_expected_income_role <- glmmTMB(
+  qol ~
+    income_filled_z * behaviour_role +
+    income_status +
+    age_z +
+    gender_bin +
+    (1 | response_id) +
+    (1 | behaviour_id),
+  family = gaussian(),
+  data = df_qol_expected_income
+)
+
+# Overall and role-specific income associations with expected QoL
+qol_expected_income_overall <- avg_slopes(
+  m_qol_expected_income_role,
+  variables = "income_filled_z"
+) |>
+  as_tibble() |>
+  mutate(
+    qol_status = "Expected",
+    level = "Overall"
+  )
+
+qol_expected_income_role <- avg_slopes(
+  m_qol_expected_income_role,
+  variables = "income_filled_z",
+  by = "behaviour_role"
+) |>
+  as_tibble() |>
+  mutate(
+    qol_status = "Expected",
+    level = as.character(behaviour_role)
+  )
+
+
+# Experienced QoL: actions already taken
+df_qol_experienced_income <- df_qol |>
+  filter(qol_status == "Experienced") |>
+  drop_na(
+    qol,
+    income_filled_z,
+    income_status,
+    age_z,
+    gender_bin,
+    behaviour_role
+  ) |>
+  droplevels()
+
+m_qol_experienced_income_role <- glmmTMB(
+  qol ~
+    income_filled_z * behaviour_role +
+    income_status +
+    age_z +
+    gender_bin +
+    (1 | response_id) +
+    (1 | behaviour_id),
+  family = gaussian(),
+  data = df_qol_experienced_income
+)
+
+# Overall and role-specific income associations with experienced QoL
+qol_experienced_income_overall <- avg_slopes(
+  m_qol_experienced_income_role,
+  variables = "income_filled_z"
+) |>
+  as_tibble() |>
+  mutate(
+    qol_status = "Experienced",
+    level = "Overall"
+  )
+
+qol_experienced_income_role <- avg_slopes(
+  m_qol_experienced_income_role,
+  variables = "income_filled_z",
+  by = "behaviour_role"
+) |>
+  as_tibble() |>
+  mutate(
+    qol_status = "Experienced",
+    level = as.character(behaviour_role)
+  )
+
+
+# Combine income estimates
+qol_income_results <- bind_rows(
+  qol_expected_income_overall,
+  qol_expected_income_role,
+  qol_experienced_income_overall,
+  qol_experienced_income_role
+) |>
+  select(
+    qol_status,
+    level,
+    estimate,
+    conf.low,
+    conf.high,
+    p.value
+  ) |>
+  arrange(
+    factor(
+      qol_status,
+      levels = c(
+        "Expected",
+        "Experienced"
+      )
+    ),
+    factor(
+      level,
+      levels = c(
+        "Overall",
+        role_levels
+      )
+    )
+  )
+
+qol_income_results
+
+
+# Formal tests of whether income associations differ across roles
+#
+# Compare the interaction models above with otherwise identical models
+# assuming a common income association across roles.
+
+m_qol_expected_income_common <- glmmTMB(
+  qol ~
+    income_filled_z +
+    behaviour_role +
+    income_status +
+    age_z +
+    gender_bin +
+    (1 | response_id) +
+    (1 | behaviour_id),
+  family = gaussian(),
+  data = df_qol_expected_income
+)
+
+m_qol_experienced_income_common <- glmmTMB(
+  qol ~
+    income_filled_z +
+    behaviour_role +
+    income_status +
+    age_z +
+    gender_bin +
+    (1 | response_id) +
+    (1 | behaviour_id),
+  family = gaussian(),
+  data = df_qol_experienced_income
+)
+
+income_role_test_expected <- anova(
+  m_qol_expected_income_common,
+  m_qol_expected_income_role
+)
+
+income_role_test_experienced <- anova(
+  m_qol_experienced_income_common,
+  m_qol_experienced_income_role
+)
+
+income_role_test_expected
+income_role_test_experienced
+
+
+# ------------------------------------------------------------------------------
+# Leadership responsibility and expected QoL for organisational actions
+#
+# Restricted to employed respondents for whom the organisational actions are
+# in the remaining opportunity space. The analysis asks whether expected QoL
+# differs by leadership responsibility.
+# ------------------------------------------------------------------------------
+
+df_qol_leadership <- df_qol |>
+  filter(
+    qol_status == "Expected",
+    behaviour_role == "Organisational participant",
+    is_employed == "Employed",
+    !is.na(leadership_cat),
+    leadership_cat != "Self-employed"
+  ) |>
+  mutate(
+    leadership_cat = factor(
+      leadership_cat,
+      levels = c(
+        "No decision authority",
+        "Professional/administrative",
+        "Strategic/financial"
+      )
+    )
+  ) |>
+  drop_na(
+    qol,
+    leadership_cat,
+    age_z,
+    gender_bin,
+    income_filled_z,
+    income_status
+  ) |>
+  droplevels()
+
+
+# Check observations and respondents by leadership category
+qol_leadership_n <- df_qol_leadership |>
+  group_by(leadership_cat) |>
+  summarise(
+    respondents = n_distinct(response_id),
+    observations = n(),
+    .groups = "drop"
+  )
+
+qol_leadership_n
+
+
+# Adjusted model
+m_qol_leadership <- glmmTMB(
+  qol ~
+    leadership_cat +
+    age_z +
+    gender_bin +
+    income_filled_z +
+    income_status +
+    factor(behaviour_id) +
+    (1 | response_id),
+  family = gaussian(),
+  data = df_qol_leadership
+)
+
+
+# Adjusted expected QoL by leadership responsibility
+qol_leadership_means <- avg_predictions(
+  m_qol_leadership,
+  by = "leadership_cat"
+) |>
+  as_tibble()
+
+qol_leadership_means
+
+
+# Differences relative to employees with no decision authority
+qol_leadership_comparisons <- avg_comparisons(
+  m_qol_leadership,
+  variables = list(
+    leadership_cat = "reference"
+  )
+) |>
+  as_tibble()
+
+qol_leadership_comparisons
+
+
+# Omnibus test of leadership responsibility
+m_qol_leadership_null <- glmmTMB(
+  qol ~
+    age_z +
+    gender_bin +
+    income_filled_z +
+    income_status +
+    factor(behaviour_id) +
+    (1 | response_id),
+  family = gaussian(),
+  data = df_qol_leadership
+)
+
+qol_leadership_test <- anova(
+  m_qol_leadership_null,
+  m_qol_leadership
+)
+
+qol_leadership_test
+
+
+# ------------------------------------------------------------------------------
+# Compact output for inspection
+# ------------------------------------------------------------------------------
+
+cat("\nINCOME ASSOCIATIONS WITH EXPECTED AND EXPERIENCED QoL\n")
+print(
+  qol_income_results,
+  n = Inf
+)
+
+cat("\nINCOME x ROLE TEST: EXPECTED QoL\n")
+print(
+  income_role_test_expected
+)
+
+cat("\nINCOME x ROLE TEST: EXPERIENCED QoL\n")
+print(
+  income_role_test_experienced
+)
+
+cat("\nLEADERSHIP SAMPLE SIZES\n")
+print(
+  qol_leadership_n,
+  n = Inf
+)
+
+cat("\nADJUSTED EXPECTED QoL BY LEADERSHIP RESPONSIBILITY\n")
+print(
+  qol_leadership_means,
+  n = Inf
+)
+
+cat("\nLEADERSHIP COMPARISONS\n")
+print(
+  qol_leadership_comparisons,
+  n = Inf
+)
+
+cat("\nOMNIBUS LEADERSHIP TEST\n")
+print(
+  qol_leadership_test
+)
+```
+
+
+## Supplementary Table 10: expected and experienced quality-of-life impacts
+
+Supplementary Table 10 reports raw mean expected and experienced ratings and
+the covariate-adjusted between-person difference for each action. The overall
+within-person estimate is reported separately in the main text because it is a
+different estimand and is not action-specific.
+
+```{r s5-table-s10}
+tab_s10 <- qol_levels_action_raw |>
+  select(
+    behaviour_id,
+    action,
+    qol_status,
+    estimate,
+    conf.low,
+    conf.high
+  ) |>
+  pivot_wider(
+    names_from = qol_status,
+    values_from = c(
+      estimate,
+      conf.low,
+      conf.high
+    )
+  ) |>
+  left_join(
+    qol_between_gap |>
+      select(
+        behaviour_id,
+        between = estimate,
+        between_low = conf.low,
+        between_high = conf.high
+      ),
+    by = "behaviour_id"
+  ) |>
+  arrange(behaviour_id) |>
+  transmute(
+    Action = action,
+    `Expected QoL (raw mean)` = sprintf(
+      "%.2f (%.2f, %.2f)",
+      estimate_Expected,
+      conf.low_Expected,
+      conf.high_Expected
+    ),
+    `Experienced QoL (raw mean)` = sprintf(
+      "%.2f (%.2f, %.2f)",
+      estimate_Experienced,
+      conf.low_Experienced,
+      conf.high_Experienced
+    ),
+    `Adjusted between-person difference` = sprintf(
+      "%.2f (%.2f, %.2f)",
+      between,
+      between_low,
+      between_high
+    )
+  )
+
+table_s10 <- flextable(tab_s10) |>
+  border_remove() |>
+  hline_top(
+    part = "header",
+    border = fp_border(
+      color = "black",
+      width = 1
+    )
+  ) |>
+  hline_bottom(
+    part = "header",
+    border = fp_border(
+      color = "black",
+      width = 0.75
+    )
+  ) |>
+  hline_bottom(
+    part = "body",
+    border = fp_border(
+      color = "black",
+      width = 1
+    )
+  ) |>
+  bold(part = "header") |>
+  align(
+    j = 2:4,
+    align = "center",
+    part = "all"
+  ) |>
+  font(
+    fontname = "Arial",
+    part = "all"
+  ) |>
+  fontsize(
+    size = 9,
+    part = "all"
+  ) |>
+  padding(
+    padding.top = 2,
+    padding.bottom = 2,
+    padding.left = 3,
+    padding.right = 3,
+    part = "all"
+  ) |>
+  autofit()
+
+save_as_docx(
+  table_s10,
+  path = file.path(
+    output_dir,
+    "Table_S10.docx"
+  )
+)
+
+table_s10
+```
+
+## Supplementary Table 11: sensitivity to psychological and social adjustment
+
+```{r s5-table-s11}
+tab_s11 <- qol_sensitivity_action |>
+  mutate(
+    model = factor(
+      model,
+      levels = c(
+        "Demographic adjustment",
+        "Additional psychological adjustment"
+      )
+    )
+  ) |>
+  select(
+    behaviour_id,
+    action,
+    model,
+    estimate,
+    conf.low,
+    conf.high
+  ) |>
+  pivot_wider(
+    names_from = model,
+    values_from = c(
+      estimate,
+      conf.low,
+      conf.high
+    )
+  ) |>
+  arrange(behaviour_id) |>
+  transmute(
+    Action = action,
+    `Demographic adjustment` = sprintf(
+      "%.2f (%.2f, %.2f)",
+      .data[["estimate_Demographic adjustment"]],
+      .data[["conf.low_Demographic adjustment"]],
+      .data[["conf.high_Demographic adjustment"]]
+    ),
+    `Additional psychological adjustment` = sprintf(
+      "%.2f (%.2f, %.2f)",
+      .data[["estimate_Additional psychological adjustment"]],
+      .data[["conf.low_Additional psychological adjustment"]],
+      .data[["conf.high_Additional psychological adjustment"]]
+    )
+  )
+
+table_s11 <- flextable(tab_s11) |>
+  border_remove() |>
+  hline_top(
+    part = "header",
+    border = fp_border(
+      color = "black",
+      width = 1
+    )
+  ) |>
+  hline_bottom(
+    part = "header",
+    border = fp_border(
+      color = "black",
+      width = 0.75
+    )
+  ) |>
+  hline_bottom(
+    part = "body",
+    border = fp_border(
+      color = "black",
+      width = 1
+    )
+  ) |>
+  bold(part = "header") |>
+  align(
+    j = 2:3,
+    align = "center",
+    part = "all"
+  ) |>
+  font(
+    fontname = "Arial",
+    part = "all"
+  ) |>
+  fontsize(
+    size = 9,
+    part = "all"
+  ) |>
+  padding(
+    padding.top = 2,
+    padding.bottom = 2,
+    padding.left = 3,
+    padding.right = 3,
+    part = "all"
+  ) |>
+  autofit()
+
+save_as_docx(
+  table_s11,
+  path = file.path(
+    output_dir,
+    "Table_S11.docx"
+  )
+)
+
+table_s11
+```
+
+## Supplementary Table 12: socioeconomic differences in quality-of-life impacts
+
+```{r s5-table-s12}
+tab_s12 <- qol_income_results |>
+  mutate(
+    qol_status = factor(
+      qol_status,
+      levels = c(
+        "Expected",
+        "Experienced"
+      )
+    ),
+    level = factor(
+      level,
+      levels = c(
+        "Overall",
+        role_levels
+      )
+    ),
+    estimate_ci = sprintf(
+      "%.2f (%.2f, %.2f)",
+      estimate,
+      conf.low,
+      conf.high
+    )
+  ) |>
+  select(
+    level,
+    qol_status,
+    estimate_ci
+  ) |>
+  pivot_wider(
+    names_from = qol_status,
+    values_from = estimate_ci
+  ) |>
+  arrange(level) |>
+  transmute(
+    Role = as.character(level),
+    `Expected quality-of-life impact` = Expected,
+    `Experienced quality-of-life impact` = Experienced
+  )
+
+table_s12 <- flextable(tab_s12) |>
+  border_remove() |>
+  hline_top(
+    part = "header",
+    border = fp_border(
+      color = "black",
+      width = 1
+    )
+  ) |>
+  hline_bottom(
+    part = "header",
+    border = fp_border(
+      color = "black",
+      width = 0.75
+    )
+  ) |>
+  hline_bottom(
+    part = "body",
+    border = fp_border(
+      color = "black",
+      width = 1
+    )
+  ) |>
+  bold(part = "header") |>
+  align(
+    j = 2:3,
+    align = "center",
+    part = "all"
+  ) |>
+  font(
+    fontname = "Arial",
+    part = "all"
+  ) |>
+  fontsize(
+    size = 9,
+    part = "all"
+  ) |>
+  padding(
+    padding.top = 2,
+    padding.bottom = 2,
+    padding.left = 3,
+    padding.right = 3,
+    part = "all"
+  ) |>
+  autofit()
+
+save_as_docx(
+  table_s12,
+  path = file.path(
+    output_dir,
+    "Table_S12.docx"
+  )
+)
+
+table_s12
+```
+
+# Figures
+
+Figures 1-4 and Supplementary Fig. 1 are produced in two steps.
+
+1. **Data export (R).** The chunk below writes the data behind each figure to
+   `figures/`: a JSON file read by the renderer, the same data as a `.js` file
+   for the browser preview, and CSV source data. No models are refitted; every
+   estimate is reused from the analyses above, and every statistic shown in a
+   figure is computed here.
+2. **Drawing (JavaScript).** The renderer (written to `figures/` by the
+   `figure-renderer` chunk) draws each figure as SVG at
+   183 mm width (7 pt text, 6 pt tick labels, 8 pt panel letters). It contains
+   no statistics. The SVGs are then converted to vector PDF and 600-dpi PNG.
+
+Requirements for step 2: [Node.js](https://nodejs.org) (any current version,
+no packages needed) and, for PDF/PNG, the R package `rsvg`. Without Node.js the
+figures can still be previewed and saved from `figures/figures.html`.
+
+## Figure data
+
+```{r figure-data}
+figure_keys <- c("1", "2", "3", "4", "S1")
+
+# Display order of the 18 actions in every figure: grouped by role, in survey
+# order within each role. The renderer draws rows in exactly this order.
+figure_action_order <- c(
+  1L, 2L, 6L,                # Consumer (technology)
+  3L, 4L, 5L, 7L, 8L, 9L,    # Consumer (curtailment)
+  12L, 13L,                  # Organisational participant
+  10L,                       # Investor
+  11L, 16L, 17L, 18L,        # Citizen
+  14L, 15L                   # Social role model
+)
+
+figure_actions <- df_long |>
+  distinct(behaviour_id, behaviour_role) |>
+  transmute(
+    behaviour_id = as.integer(as.character(behaviour_id)),
+    action       = unname(short_labels[as.character(behaviour_id)]),
+    role         = as.character(behaviour_role)
+  )
+
+stopifnot(
+  nrow(figure_actions) == 18L,
+  !anyDuplicated(figure_action_order),
+  setequal(figure_actions$behaviour_id, figure_action_order),
+  !anyNA(figure_actions$action),
+  # each role must occupy one contiguous block in the display order
+  length(rle(figure_actions$role[match(figure_action_order,
+                                       figure_actions$behaviour_id)])$values) ==
+    length(role_levels)
+)
+
+# Attach action label and role, and sort rows into display order.
+in_figure_order <- function(d) {
+  d |>
+    mutate(behaviour_id = as.integer(as.character(behaviour_id))) |>
+    left_join(figure_actions, by = "behaviour_id") |>
+    arrange(match(behaviour_id, figure_action_order)) |>
+    relocate(behaviour_id, action, role)
+}
+
+# Mean with a 95% t confidence interval.
+mean_ci <- function(x) {
+  x <- x[!is.na(x)]
+  n <- length(x)
+  m <- mean(x)
+  h <- if (n > 1) qt(0.975, df = n - 1) * sd(x) / sqrt(n) else NA_real_
+  tibble(n = n, mean = m, low = m - h, high = m + h)
+}
+
+# Write <key>_data.json (renderer), <key>_data.js (browser preview) and
+# CSV source data (one file per named table).
+write_figure_data <- function(key, data, source_data) {
+  json <- jsonlite::toJSON(data, auto_unbox = TRUE, dataframe = "rows",
+                           digits = NA, na = "null", pretty = TRUE)
+  stem <- file.path(figure_dir, paste0("Figure_", key))
+  writeLines(enc2utf8(as.character(json)), paste0(stem, "_data.json"), useBytes = TRUE)
+  writeLines(
+    enc2utf8(c("window.FIGURE_DATA = window.FIGURE_DATA || {};",
+               paste0("window.FIGURE_DATA[\"", key, "\"] = ", json, ";"))),
+    paste0(stem, "_data.js"), useBytes = TRUE
+  )
+  for (nm in names(source_data)) {
+    readr::write_csv(source_data[[nm]],
+                     paste0(stem, "_source_data_", nm, ".csv"), na = "")
+  }
+}
+
+ci_contains_estimate <- function(d) all(d$low <= d$estimate & d$estimate <= d$high)
+
+# ---------------------------------------------------------------------------
+# Figure 1: opportunity space
+# ---------------------------------------------------------------------------
+fig1_hist <- function(x) {
+  stopifnot(!anyNA(x), all(x %in% 0:18))
+  tabulate(as.integer(x) + 1L, nbins = 19L) / length(x)
+}
+
+status_key <- c("Already taken"       = "taken",
+                "Relevant, not taken" = "untaken",
+                "Not relevant"        = "not_relevant")
+
+fig1_items <- df_long |>
+  count(behaviour_id, action_status, .drop = FALSE) |>
+  group_by(behaviour_id) |>
+  mutate(share = n / sum(n)) |>
+  ungroup() |>
+  transmute(behaviour_id,
+            status = unname(status_key[as.character(action_status)]),
+            share) |>
+  tidyr::pivot_wider(names_from = status, values_from = share, values_fill = 0) |>
+  in_figure_order() |>
+  select(behaviour_id, action, role, taken, untaken, not_relevant)
+
+fig1_hist_tab <- tibble(
+  n_actions   = 0:18,
+  opportunity = fig1_hist(df_person$opportunity_space),
+  taken       = fig1_hist(df_person$n_already_taken),
+  remaining   = fig1_hist(df_person$remaining_space)
+)
+
+stopifnot(
+  nrow(fig1_items) == 18L,
+  all(abs(fig1_items$taken + fig1_items$untaken + fig1_items$not_relevant - 1) < 1e-10),
+  all(abs(colSums(fig1_hist_tab[, -1]) - 1) < 1e-10)
+)
+
+write_figure_data(
+  "1",
+  list(n_respondents = nrow(df_person),
+       hist  = as.list(fig1_hist_tab[, -1]),
+       items = fig1_items),
+  list(a = fig1_hist_tab |> mutate(across(-n_actions, ~ 100 * .x)) |>
+             rename(opportunity_space_pct = opportunity, already_taken_pct = taken,
+                    remaining_pct = remaining),
+       b = fig1_items |> mutate(across(c(taken, untaken, not_relevant), ~ 100 * .x)) |>
+             rename(already_taken_pct = taken, relevant_not_taken_pct = untaken,
+                    not_relevant_pct = not_relevant))
+)
+
+# ---------------------------------------------------------------------------
+# Figure 2a: opportunity space by income category (descriptive)
+# ---------------------------------------------------------------------------
+# Axis labels give the lower bound of each income category in DKK, with an
+# approximate EUR equivalent rounded to the nearest EUR 5,000.
+dkk_per_eur      <- 7.46
+income_lower_dkk <- c(200000, 300000, 400000, 500000, 650000, 800000,
+                      1000000, 1250000, 1500000)
+big     <- function(x) formatC(x, format = "f", digits = 0, big.mark = ",")
+to_eur5 <- function(x) round(x / dkk_per_eur / 5000) * 5000
+euro    <- "\u20ac"
+
+income_axis <- tibble(
+  income    = 1:10,
+  label_dkk = c(paste0("<", big(income_lower_dkk[1])),
+                big(income_lower_dkk[1:8]),
+                paste0(big(income_lower_dkk[9]), "+")),
+  label_eur = c(paste0("(<", euro, big(to_eur5(income_lower_dkk[1])), ")"),
+                paste0("(", euro, big(to_eur5(income_lower_dkk[1:8])), ")"),
+                paste0("(", euro, big(to_eur5(income_lower_dkk[9])), "+)"))
+)
+stopifnot(length(income_labels) == nrow(income_axis))
+
+fig2a <- df_person |>
+  filter(!is.na(income)) |>
+  group_by(income) |>
+  summarise(
+    n           = n(),
+    opportunity = mean_ci(opportunity_space),
+    taken       = mean_ci(n_already_taken),
+    remaining   = mean_ci(remaining_space),
+    .groups = "drop"
+  ) |>
+  tidyr::unpack(c(opportunity, taken, remaining), names_sep = "_") |>
+  select(-ends_with("_n")) |>
+  mutate(income = as.integer(income)) |>
+  left_join(income_axis, by = "income") |>
+  relocate(income, label_dkk, label_eur, n)
+
+stopifnot(
+  nrow(fig2a) == 10L,
+  sum(fig2a$n) == sum(!is.na(df_person$income)),
+  !anyNA(fig2a)
+)
+
+# ---------------------------------------------------------------------------
+# Figure 2b-d: adjusted associations (same estimates as Supplementary Table 4)
+# ---------------------------------------------------------------------------
+# Overall estimates are also expressed as a difference in the expected number
+# of actions in the opportunity space out of 18.
+fig2bcd <- eff_space |>
+  filter(term %in% c("income_filled_z", "is_employed", "age_z")) |>
+  transmute(
+    term,
+    predictor    = Predictor,
+    role         = as.character(role),
+    actions      = if_else(role == "Overall", 18 * estimate,  NA_real_),
+    actions_low  = if_else(role == "Overall", 18 * conf.low,  NA_real_),
+    actions_high = if_else(role == "Overall", 18 * conf.high, NA_real_),
+    estimate     = estimate_pp,
+    low          = conf.low_pp,
+    high         = conf.high_pp
+  )
+
+stopifnot(
+  nrow(fig2bcd) == 21L,
+  setequal(fig2bcd$role, c("Overall", role_levels)),
+  ci_contains_estimate(fig2bcd)
+)
+
+write_figure_data(
+  "2",
+  list(n_income = sum(fig2a$n), panel_a = fig2a, panels_bcd = fig2bcd),
+  list(a = fig2a, bcd = fig2bcd)
+)
+
+# ---------------------------------------------------------------------------
+# Figure 3: utilisation, perceived opportunity and motivation
+# (same estimates as Supplementary Tables 5 and 8)
+# ---------------------------------------------------------------------------
+fig3_predictors <- tibble(
+  predictor = c("Income", "Age", "Women vs men",
+                "Expected quality-of-life impact", "Climate conversations",
+                "Action knowledge", "Individual-attribution belief",
+                "Techno-optimism", "Political orientation (right)"),
+  group = rep(c("Socio-demographic", "Psychological"), times = c(3, 6))
+)
+
+fig3_estimates <- bind_rows(
+  eff_taken |>
+    transmute(construct = "Utilisation", term, predictor = Predictor, level,
+              estimate = estimate_pp, low = conf.low_pp, high = conf.high_pp,
+              unit = "Percentage points"),
+  eff_opp |>
+    transmute(construct = "Perceived opportunity", term, predictor = Predictor,
+              level, estimate, low = conf.low, high = conf.high,
+              unit = "Points on 1-5 scale"),
+  eff_mot |>
+    transmute(construct = "Motivation", term, predictor = Predictor,
+              level, estimate, low = conf.low, high = conf.high,
+              unit = "Points on 1-7 scale")
+) |>
+  mutate(level = as.character(level))
+
+stopifnot(
+  all(fig3_estimates$predictor %in% fig3_predictors$predictor),
+  !anyNA(fig3_estimates[, c("estimate", "low", "high")]),
+  ci_contains_estimate(fig3_estimates),
+  # 8 predictors for utilisation, 9 for the untaken-action outcomes, each
+  # with an overall and six role-specific estimates
+  nrow(fig3_estimates) == (8 + 9 + 9) * 7
+)
+
+write_figure_data(
+  "3",
+  list(predictors = fig3_predictors, estimates = fig3_estimates),
+  list(all = fig3_estimates)
+)
+
+# ---------------------------------------------------------------------------
+# Figure 4: raw mean expected and experienced quality-of-life impacts
+# (not the adjusted differences; those are in Supplementary Table 10)
+# ---------------------------------------------------------------------------
+fig4_items <- qol_levels_action_raw |>
+  transmute(behaviour_id,
+            status = tolower(as.character(qol_status)),
+            n, mean = estimate, low = conf.low, high = conf.high) |>
+  tidyr::pivot_wider(names_from = status,
+                     values_from = c(n, mean, low, high),
+                     names_glue = "{status}_{.value}") |>
+  in_figure_order() |>
+  select(behaviour_id, action, role,
+         expected_n, expected_mean, expected_low, expected_high,
+         experienced_n, experienced_mean, experienced_low, experienced_high)
+
+stopifnot(nrow(fig4_items) == 18L, !anyNA(fig4_items))
+
+write_figure_data(
+  "4",
+  list(scale = list(min = -3, max = 3), items = fig4_items),
+  list(all = fig4_items)
+)
+
+# ---------------------------------------------------------------------------
+# Supplementary Figure 1: perceived opportunity and motivation among
+# relevant, untaken actions (descriptive)
+# ---------------------------------------------------------------------------
+figs1_items <- df_untaken |>
+  group_by(behaviour_id) |>
+  summarise(
+    opportunity = mean_ci(opportunity),
+    motivation  = mean_ci(motivation),
+    .groups = "drop"
+  ) |>
+  tidyr::unpack(c(opportunity, motivation), names_sep = "_") |>
+  in_figure_order()
+
+figs1_overall <- list(
+  opportunity = mean(df_untaken$opportunity, na.rm = TRUE),
+  motivation  = mean(df_untaken$motivation,  na.rm = TRUE)
+)
+
+stopifnot(
+  nrow(figs1_items) == 18L,
+  !anyNA(figs1_items),
+  # the figure shows a single n column
+  all(figs1_items$opportunity_n == figs1_items$motivation_n)
+)
+
+write_figure_data(
+  "S1",
+  list(overall = figs1_overall, items = figs1_items),
+  list(all = figs1_items)
+)
+
+readr::write_csv(
+  tibble(
+    figure = figure_keys,
+    source = c("df_person, df_long",
+               "df_person (a); eff_space, model m2 (b-d)",
+               "eff_taken, eff_opp, eff_mot",
+               "qol_levels_action_raw (unadjusted means)",
+               "df_untaken (unadjusted means)"),
+    respondents = n_distinct(df_long$response_id),
+    created = format(Sys.time(), "%Y-%m-%d %H:%M")
+  ),
+  file.path(figure_dir, "Figure_data_manifest.csv")
+)
+```
+
+## Renderer
+
+The JavaScript renderer is kept in this document so the analysis is a single
+file. This chunk writes it to `figures/render_figures.js`, together with the
+browser preview `figures/figures.html`. The renderer only draws: it reads
+`Figure_<key>_data.json` and contains no statistics.
+
+```{r figure-renderer}
+render_figures_js <- r"---(/*
+ * render_figures.js
+ * -----------------------------------------------------------------------------
+ * Publication figures for "Personal climate agency" (Rudersdal survey):
+ * Figures 1-4 and Supplementary Figure 1.
+ *
+ * The renderer is dependency-free. It turns the JSON files written by
+ * data_analysis.Rmd (figures/Figure_<key>_data.json) into standalone SVG files.
+ * It contains no statistics: every number drawn comes from the R export.
+ *
+ *   R:        the figure-render chunk runs it with the V8 package
+ *   Node:     node figures/render_figures.js figures   -> figures/Figure_<key>.svg
+ *   Browser:  open figures/figures.html                 (preview + download)
+ *
+ * Geometry is in typographic points (1 SVG unit = 1 pt) at a fixed width of
+ * 183 mm (Nature double-column), so font sizes and stroke widths in this file
+ * are the printed sizes: 7 pt text, 6 pt tick labels, 8 pt bold panel letters.
+ * -----------------------------------------------------------------------------
+ */
+(function (root, factory) {
+  const api = factory();
+  if (typeof module === 'object' && module.exports) module.exports = api;
+  else root.FigureRenderer = api;
+})(typeof self !== 'undefined' ? self : this, function () {
+  'use strict';
+
+  // ===========================================================================
+  // 1. Style
+  // ===========================================================================
+  const MM = 72 / 25.4;                       // points per millimetre
+  const PAGE_WIDTH_MM = 183;
+  const W = PAGE_WIDTH_MM * MM;               // 518.74 pt
+
+  const FONT = {
+    family: 'Arial, Helvetica, \'Liberation Sans\', sans-serif',
+    text: 7,      // labels, axis titles, legends
+    tick: 6,      // tick labels, in-bar values, secondary notes
+    panel: 8      // bold panel letters
+  };
+
+  const STROKE = { axis: 0.5, grid: 0.4, ci: 0.9, zero: 0.6, connector: 1.2 };
+
+  const COLOR = {
+    ink: '#1F2529',
+    muted: '#5E6A71',        // secondary text
+    grid: '#E3E7EA',
+    zero: '#8C9BA5',
+    blue: '#1B4F72',         // already taken / overall estimates
+    teal: '#5FA8A0',         // relevant, not yet taken (fills)
+    tealDark: '#3B8C81',     // teal for points and text (better contrast)
+    tealFill: '#D3E8E4',     // remaining-opportunity area
+    slate: '#7D8D98',        // opportunity space
+    notRelevant: '#E4E6E8',
+    roleDot: '#B9C1C7',      // role-specific estimates (Fig. 3)
+    connector: '#CFD8DC',    // expected-experienced connector (Fig. 4)
+    opportunity: '#5B7F9C',  // Supplementary Fig. 1a
+    motivation: '#C97B1A',   // Supplementary Fig. 1b
+    boxFill: '#F1F3F4'
+  };
+
+  const ROLES = [
+    'Consumer (technology)', 'Consumer (curtailment)',
+    'Organisational participant', 'Investor', 'Citizen', 'Social role model'
+  ];
+  const ROLE_LINES = {
+    'Consumer (technology)': ['Consumer', '(technology)'],
+    'Consumer (curtailment)': ['Consumer', '(curtailment)'],
+    'Organisational participant': ['Organisational', 'participant'],
+    'Investor': ['Investor'],
+    'Citizen': ['Citizen'],
+    'Social role model': ['Social', 'role model']
+  };
+  const ROLE_SHORT = {
+    'Consumer (technology)': 'Technology adoption',
+    'Consumer (curtailment)': 'Curtailment',
+    'Organisational participant': 'Organisational',
+    'Investor': 'Investor',
+    'Citizen': 'Citizen',
+    'Social role model': 'Social role model'
+  };
+
+  // ===========================================================================
+  // 2. Text measurement
+  // Advance widths of Helvetica/Arial (identical metrics), per 1000 em, for
+  // printable ASCII 32-126. Used only for layout (column widths, label fitting).
+  // ===========================================================================
+  const AFM = [
+    278, 278, 355, 556, 556, 889, 667, 191, 333, 333, 389, 584, 278, 333, 278, 278,
+    556, 556, 556, 556, 556, 556, 556, 556, 556, 556, 278, 278, 584, 584, 584, 556,
+    1015, 667, 667, 722, 722, 667, 611, 778, 722, 278, 500, 667, 556, 833, 722, 778,
+    667, 778, 722, 667, 611, 722, 667, 944, 667, 667, 611, 278, 278, 278, 469, 556,
+    333, 556, 556, 500, 556, 556, 278, 556, 556, 222, 222, 500, 222, 833, 556, 556,
+    556, 556, 333, 500, 278, 556, 500, 722, 500, 500, 500, 334, 260, 334, 584
+  ];
+  function textWidth(s, size, bold) {
+    let w = 0;
+    for (const ch of String(s)) {
+      const c = ch.codePointAt(0);
+      w += (c >= 32 && c <= 126) ? AFM[c - 32] : 556;
+    }
+    return w / 1000 * size * (bold ? 1.1 : 1);
+  }
+  const maxWidth = (strings, size, bold) =>
+    Math.max(0, ...strings.map(s => textWidth(s, size, bold)));
+
+  // ===========================================================================
+  // 3. Number formatting (true minus sign, as required in print)
+  // ===========================================================================
+  const MINUS = '\u2212';
+  function fmt(v, digits = 0, signed = false) {
+    const s = Math.abs(v).toFixed(digits);
+    if (Number(s) === 0) return (signed ? '' : '') + s;
+    return (v < 0 ? MINUS : (signed ? '+' : '')) + s;
+  }
+  function decimalsOf(step) {
+    return Math.max(0, -Math.floor(Math.log10(step) + 1e-9));
+  }
+  // Tick labels drop trailing zeros: 0, 0.5, 1 rather than 0.0, 0.5, 1.0.
+  function fmtTick(v, digits) {
+    const s = fmt(v, digits);
+    return s.includes('.') ? s.replace(/0+$/, '').replace(/\.$/, '') : s;
+  }
+
+  // Percentage labels for stacked bars use conventional rounding of each
+  // segment, so they match the percentages quoted in the text. Labels on a
+  // bar may therefore sum to 99 or 101.
+  const percentLabels = shares => shares.map(s => Math.round(s * 100));
+
+  // ===========================================================================
+  // 4. Scales
+  // ===========================================================================
+  function linear(d0, d1, r0, r1) {
+    const f = v => r0 + (v - d0) / (d1 - d0) * (r1 - r0);
+    f.domain = [d0, d1];
+    return f;
+  }
+  // "Nice" ticks covering [lo, hi]. The domain is padded around the data and
+  // extended to the next tick only when that tick is close (or snap = true),
+  // so axes stay tight but rarely end just short of a round number.
+  function niceAxis(values, { includeZero = true, target = 5, pad = 0.04, snap = false, snapWithin = 0.3 } = {}) {
+    let lo = Math.min(...values), hi = Math.max(...values);
+    if (includeZero) { lo = Math.min(lo, 0); hi = Math.max(hi, 0); }
+    const span = hi - lo || 1;
+    lo -= span * pad; hi += span * pad;
+    const raw = (hi - lo) / target, mag = Math.pow(10, Math.floor(Math.log10(raw)));
+    const norm = raw / mag;
+    const step = (norm < 1.5 ? 1 : norm < 3 ? 2 : norm < 7.5 ? 5 : 10) * mag;
+    const below = Math.floor(lo / step + 1e-9) * step, above = Math.ceil(hi / step - 1e-9) * step;
+    if (snap || lo - below < snapWithin * step) lo = below;
+    if (snap || above - hi < snapWithin * step) hi = above;
+    const ticks = [];
+    for (let t = Math.ceil(lo / step - 1e-9) * step; t <= hi + 1e-9; t += step) {
+      ticks.push(Math.round(t / step) * step);
+    }
+    return { lo, hi, ticks, digits: decimalsOf(step) };
+  }
+
+  // ===========================================================================
+  // 5. Minimal SVG builder (string output: works in Node and in the browser)
+  // ===========================================================================
+  const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const num = v => (Math.round(v * 100) / 100).toString();
+
+  class Canvas {
+    constructor(title) { this.parts = []; this.title = title; }
+    add(tag, attrs, content) {
+      const a = Object.entries(attrs)
+        .filter(([, v]) => v !== undefined && v !== null)
+        .map(([k, v]) => `${k}="${typeof v === 'number' ? num(v) : esc(v)}"`).join(' ');
+      this.parts.push(content === undefined ? `<${tag} ${a}/>` : `<${tag} ${a}>${content}</${tag}>`);
+    }
+    // Text is vertically centred on y via a fixed baseline shift (0.35 em),
+    // which renders identically in browsers, librsvg and Illustrator.
+    text(x, y, s, { size = FONT.text, anchor = 'start', bold = false, fill = COLOR.ink, rotate } = {}) {
+      this.add('text', {
+        x, y: y + 0.35 * size, 'font-size': size, 'text-anchor': anchor,
+        'font-weight': bold ? 'bold' : undefined, fill,
+        transform: rotate ? `rotate(${rotate} ${num(x)} ${num(y)})` : undefined
+      }, esc(s));
+    }
+    line(x1, y1, x2, y2, stroke = COLOR.ink, width = STROKE.axis, dash) {
+      this.add('line', { x1, y1, x2, y2, stroke, 'stroke-width': width, 'stroke-dasharray': dash });
+    }
+    rect(x, y, w, h, fill, rx) {
+      this.add('rect', { x, y, width: Math.max(0, w), height: Math.max(0, h), fill, rx });
+    }
+    circle(cx, cy, r, fill, stroke) {
+      this.add('circle', { cx, cy, r, fill, stroke: stroke ? '#FFFFFF' : undefined, 'stroke-width': stroke ? 0.4 : undefined });
+    }
+    path(d, attrs) { this.add('path', { d, ...attrs }); }
+    toString(height) {
+      const h = Math.ceil(height);
+      return [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        `<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="${PAGE_WIDTH_MM}mm" height="${num(h / MM)}mm" viewBox="0 0 ${num(W)} ${h}">`,
+        `<title>${esc(this.title)}</title>`,
+        `<rect x="0" y="0" width="${num(W)}" height="${h}" fill="#FFFFFF"/>`,
+        `<g font-family="${FONT.family}" fill="${COLOR.ink}">`,
+        ...this.parts,
+        '</g>',
+        '</svg>', ''
+      ].join('\n');
+    }
+  }
+
+  // ===========================================================================
+  // 6. Shared components
+  // ===========================================================================
+  function panelLabel(c, x, y, letter, title, subtitle) {
+    c.text(x, y, letter, { size: FONT.panel, bold: true });
+    if (title) c.text(x + 9, y, title);
+    if (subtitle) c.text(x + 9, y + 9, subtitle, { size: FONT.tick, fill: COLOR.muted });
+  }
+
+  function xAxis(c, x, axis, y, title, { ticks = axis.ticks, digits = axis.digits, x0, x1 } = {}) {
+    c.line(x0 ?? x(axis.lo), y, x1 ?? x(axis.hi), y);
+    ticks.forEach(t => {
+      c.line(x(t), y, x(t), y + 2.5);
+      c.text(x(t), y + 8, fmtTick(t, digits), { size: FONT.tick, anchor: 'middle' });
+    });
+    if (title) c.text((x(axis.lo) + x(axis.hi)) / 2, y + 19, title, { anchor: 'middle' });
+  }
+
+  function verticalGrid(c, x, ticks, y0, y1, zero = true) {
+    ticks.forEach(t => {
+      if (zero && Math.abs(t) < 1e-12) return;
+      c.line(x(t), y0, x(t), y1, COLOR.grid, STROKE.grid);
+    });
+    if (zero) c.line(x(0), y0, x(0), y1, COLOR.zero, STROKE.zero, '2 2');
+  }
+
+  function errorBar(c, x, lo, hi, y, color, width = STROKE.ci) {
+    c.line(x(lo), y, x(hi), y, color, width);
+  }
+
+  // Assign y positions to action rows, adding a gap whenever the role changes.
+  function layoutRows(items, top, pitch, gap) {
+    let y = top, prev = null;
+    return items.map(d => {
+      if (prev !== null && d.role !== prev) y += gap;
+      prev = d.role;
+      const row = { ...d, y };
+      y += pitch;
+      return row;
+    });
+  }
+
+  // Bold role labels, vertically centred on their block of rows.
+  function roleLabels(c, rows, x) {
+    for (const role of ROLES) {
+      const r = rows.filter(d => d.role === role);
+      if (!r.length) continue;
+      const lines = ROLE_LINES[role];
+      const mid = (r[0].y + r[r.length - 1].y) / 2;
+      lines.forEach((s, i) => c.text(x, mid + (i - (lines.length - 1) / 2) * 8.4, s, { bold: true }));
+    }
+  }
+  const roleColumnWidth = () => maxWidth(Object.values(ROLE_LINES).flat(), FONT.text, true);
+
+  function legendItem(c, x, y, label, color, kind = 'square', r = 2.2, lineWidth = STROKE.ci) {
+    if (kind === 'square') c.rect(x, y - 3, 6, 6, color);
+    else if (kind === 'dot') c.circle(x + 3, y, r, color);
+    else if (kind === 'dotci') { c.line(x - 1, y, x + 7, y, color, lineWidth); c.circle(x + 3, y, r, color); }
+    c.text(x + 9, y, label);
+    return x + 9 + textWidth(label, FONT.text) + 12;
+  }
+
+  function requireFields(rows, fields, where) {
+    rows.forEach((r, i) => fields.forEach(f => {
+      if (r[f] === undefined || r[f] === null || Number.isNaN(r[f])) {
+        throw new Error(`${where}: row ${i + 1} is missing "${f}"`);
+      }
+    }));
+  }
+
+  // ===========================================================================
+  // 7. Figure 1 - Opportunity space for personal climate action
+  // ===========================================================================
+  function figure1(D) {
+    requireFields(D.items, ['behaviour_id', 'action', 'role', 'taken', 'untaken', 'not_relevant'], 'Figure 1');
+    const c = new Canvas('Figure 1. Opportunity space for personal climate action');
+
+    // ---- a: distributions --------------------------------------------------
+    panelLabel(c, 0, 6, 'a');
+    const hists = [
+      ['opportunity', 'Opportunity space', COLOR.slate],
+      ['taken', 'Already taken', COLOR.blue],
+      ['remaining', 'Remaining opportunity', COLOR.teal]
+    ];
+    const ymaxPct = Math.max(...hists.flatMap(([k]) => D.hist[k])) * 100;
+    const yAxis = niceAxis([0, ymaxPct], { pad: 0, target: 3, snap: true });
+    const aLeft = 30, aRight = W - 6, gapA = 18;
+    const pw = (aRight - aLeft - 2 * gapA) / 3;
+    const aTop = 22, aBot = 112;
+    const y = linear(0, yAxis.hi, aBot, aTop);
+
+    hists.forEach(([key, name, color], i) => {
+      const x0 = aLeft + i * (pw + gapA), x1 = x0 + pw;
+      legendItem(c, x0, 12, name, color);
+      yAxis.ticks.forEach(t => {
+        c.line(x0, y(t), x1, y(t), COLOR.grid, STROKE.grid);
+        if (i === 0) c.text(x0 - 4, y(t), fmt(t), { size: FONT.tick, anchor: 'end' });
+      });
+      const step = pw / 19;
+      D.hist[key].forEach((p, j) => {
+        const h = aBot - y(p * 100);
+        c.rect(x0 + j * step + step * 0.12, aBot - h, step * 0.76, h, color);
+      });
+      const xc = j => x0 + (j + 0.5) * step;
+      c.line(x0, aBot, x1, aBot);
+      [0, 6, 12, 18].forEach(t => {
+        c.line(xc(t), aBot, xc(t), aBot + 2.5);
+        c.text(xc(t), aBot + 8, t, { size: FONT.tick, anchor: 'middle' });
+      });
+    });
+    c.text(8, (aTop + aBot) / 2, 'Respondents (%)', { anchor: 'middle', rotate: -90 });
+    c.text((aLeft + aRight) / 2, aBot + 19, 'Number of actions', { anchor: 'middle' });
+
+    // ---- b: status of each action ------------------------------------------
+    const bTop = aBot + 38;
+    panelLabel(c, 0, bTop, 'b');
+    const roleW = roleColumnWidth();
+    const labelRight = roleW + 10 + maxWidth(D.items.map(d => d.action), FONT.text) ;
+    const left = labelRight + 6, right = W - 6;
+    const status = [
+      ['taken', 'Already taken', COLOR.blue, '#FFFFFF'],
+      ['untaken', 'Relevant, not yet taken', COLOR.teal, COLOR.ink],
+      ['not_relevant', 'Not relevant', COLOR.notRelevant, COLOR.muted]
+    ];
+    let lx = left;
+    status.forEach(([, name, color]) => { lx = legendItem(c, lx, bTop, name, color); });
+
+    const rows = layoutRows(D.items, bTop + 15, 11, 6);
+    roleLabels(c, rows, 0);
+    const x = linear(0, 100, left, right);
+    rows.forEach(d => {
+      c.text(labelRight, d.y, d.action, { anchor: 'end' });
+      const labels = percentLabels(status.map(([key]) => d[key]));
+      let cum = 0;
+      status.forEach(([key, , color, ink], j) => {
+        const pct = 100 * d[key];
+        const x0 = x(cum), w = x(cum + pct) - x0;
+        c.rect(x0, d.y - 3.9, w, 7.8, color);
+        if (w >= textWidth(labels[j], FONT.tick) + 2) {
+          c.text(x0 + w / 2, d.y, labels[j], { size: FONT.tick, anchor: 'middle', fill: ink });
+        }
+        cum += pct;
+      });
+    });
+    const axisY = rows[rows.length - 1].y + 8;
+    xAxis(c, x, { lo: 0, hi: 100, ticks: [0, 25, 50, 75, 100], digits: 0 }, axisY, 'Respondents (%)');
+    return c.toString(axisY + 25);
+  }
+
+  // ===========================================================================
+  // 8. Figure 2 - Socioeconomic differences in the opportunity space
+  // ===========================================================================
+  function figure2(D) {
+    const A = D.panel_a;
+    requireFields(A, ['label_dkk', 'label_eur', 'opportunity_mean', 'opportunity_low', 'opportunity_high',
+      'taken_mean', 'taken_low', 'taken_high'], 'Figure 2a');
+    requireFields(D.panels_bcd, ['term', 'role', 'estimate', 'low', 'high'], 'Figure 2b-d');
+    const c = new Canvas('Figure 2. Socioeconomic differences in the opportunity space');
+
+    // ---- a: opportunity space and actions taken by income ------------------
+    panelLabel(c, 0, 6, 'a', 'Opportunity space and actions taken, by personal annual income');
+    const left = 30, right = W - 18, top = 24, bot = 128;
+    const xi = i => left + i * (right - left) / (A.length - 1);
+    const y = linear(0, 18, bot, top);
+    [0, 6, 12, 18].forEach(t => {
+      c.line(left - 6, y(t), right + 6, y(t), t === 0 ? COLOR.ink : COLOR.grid, t === 0 ? STROKE.axis : STROKE.grid);
+      c.text(left - 10, y(t), t, { size: FONT.tick, anchor: 'end' });
+    });
+    const pts = key => A.map((d, i) => `${num(xi(i))},${num(y(d[key]))}`);
+    // Remaining opportunity = area between the two lines.
+    c.path(`M${pts('opportunity_mean').join('L')}L${pts('taken_mean').reverse().join('L')}Z`, { fill: COLOR.tealFill });
+    [['opportunity', COLOR.slate], ['taken', COLOR.blue]].forEach(([k, col]) => {
+      c.path(`M${pts(k + '_mean').join('L')}`, { fill: 'none', stroke: col, 'stroke-width': 1.2, 'stroke-linejoin': 'round' });
+      A.forEach((d, i) => {
+        c.line(xi(i), y(d[k + '_low']), xi(i), y(d[k + '_high']), col, STROKE.ci);
+        c.circle(xi(i), y(d[k + '_mean']), 2.1, col);
+      });
+    });
+    // Direct labels instead of a legend.
+    // Labels sit just above / below the first two points of their line.
+    const oHigh = Math.max(A[0].opportunity_high, A[1].opportunity_high);
+    const tLow = Math.min(A[0].taken_low, A[1].taken_low);
+    c.text(xi(0) + 6, Math.max(top + 2, y(oHigh) - 5), 'Opportunity space', { fill: COLOR.slate });
+    c.text(xi(0) + 6, Math.min(bot - 5, y(tLow) + 5), 'Already taken', { fill: COLOR.blue });
+    const midI = Math.floor((A.length - 1) / 2);
+    c.text((xi(midI) + xi(midI + 1)) / 2, y((A[midI].opportunity_mean + A[midI].taken_mean) / 2),
+      'Remaining opportunity', { anchor: 'middle', fill: COLOR.tealDark });
+    A.forEach((d, i) => {
+      c.line(xi(i), bot, xi(i), bot + 2.5);
+      c.text(xi(i), bot + 8, d.label_dkk, { size: FONT.tick, anchor: 'middle' });
+      c.text(xi(i), bot + 16, d.label_eur, { size: FONT.tick, anchor: 'middle', fill: COLOR.muted });
+    });
+    c.text(8, (top + bot) / 2, 'Actions', { anchor: 'middle', rotate: -90 });
+    c.text((left + right) / 2, bot + 28, 'Personal annual income', { anchor: 'middle' });
+
+    // ---- b-d: adjusted associations ----------------------------------------
+    const specs = [
+      ['income_filled_z', 'b', 'Income (per SD)'],
+      ['is_employed', 'c', 'Employed vs not employed'],
+      ['age_z', 'd', 'Age (per SD)']
+    ];
+    const labelRight = maxWidth(ROLES.map(r => ROLE_SHORT[r]), FONT.text);
+    const gap = 16, x0all = labelRight + 10, pw = (W - 4 - x0all - 2 * gap) / 3;
+    const tTop = bot + 52, boxTop = tTop + 9, rowTop = boxTop + 34, pitch = 13;
+    const rowsBot = rowTop + pitch * (ROLES.length - 1);
+    ROLES.forEach((r, j) => c.text(labelRight, rowTop + j * pitch, ROLE_SHORT[r], { anchor: 'end' }));
+
+    specs.forEach(([term, letter, title], i) => {
+      const x0 = x0all + i * (pw + gap), x1 = x0 + pw;
+      const rows = D.panels_bcd.filter(d => d.term === term);
+      const overall = rows.find(d => d.role === 'Overall');
+      if (!overall) throw new Error(`Figure 2: no overall estimate for ${term}`);
+      panelLabel(c, x0, tTop, letter, title);
+      c.rect(x0, boxTop, pw, 22, COLOR.boxFill, 1.5);
+      c.text(x0 + 4, boxTop + 7, `Overall: ${fmt(overall.actions, 2, true)} actions`, { bold: true });
+      c.text(x0 + 4, boxTop + 15.5, `95% CI ${fmt(overall.actions_low, 2, true)} to ${fmt(overall.actions_high, 2, true)}`,
+        { size: FONT.tick, fill: COLOR.muted });
+
+      const roleRows = ROLES.map(r => rows.find(d => d.role === r));
+      const axis = niceAxis(roleRows.flatMap(d => [d.low, d.high]), { target: 4 });
+      const x = linear(axis.lo, axis.hi, x0, x1);
+      verticalGrid(c, x, axis.ticks, rowTop - 7, rowsBot + 7);
+      roleRows.forEach((d, j) => {
+        const yy = rowTop + j * pitch;
+        errorBar(c, x, d.low, d.high, yy, COLOR.blue);
+        c.circle(x(d.estimate), yy, 2.3, COLOR.blue);
+      });
+      xAxis(c, x, axis, rowsBot + 9, 'Percentage-point difference');
+    });
+    return c.toString(rowsBot + 34);
+  }
+
+  // ===========================================================================
+  // 9. Figure 3 - Factors associated with utilisation, opportunity, motivation
+  // ===========================================================================
+  function figure3(D) {
+    requireFields(D.estimates, ['construct', 'predictor', 'level', 'estimate', 'low', 'high'], 'Figure 3');
+    const c = new Canvas('Figure 3. Factors associated with utilisation, perceived opportunity and motivation');
+    const panels = [
+      { construct: 'Utilisation', letter: 'a', sub: 'among relevant actions', unit: 'Percentage-point difference' },
+      { construct: 'Perceived opportunity', letter: 'b', sub: 'among relevant, untaken actions', unit: 'Points (1-5 scale)' },
+      { construct: 'Motivation', letter: 'c', sub: 'among relevant, untaken actions', unit: 'Points (1-7 scale)' }
+    ];
+    const preds = D.predictors;
+    const labelRight = Math.max(maxWidth(preds.map(p => p.predictor), FONT.text),
+      maxWidth(['Each of the six roles'], FONT.text) + 9);
+    const gap = 14, x0all = labelRight + 10, pw = (W - 4 - x0all - 2 * gap) / 3;
+    // Mark sizes for this figure: thin CI lines, a clear overall point and
+    // small role points.
+    const MARK = { ci: 0.8, overallR: 2.2, roleR: 1.35, roleColor: '#A9B4BB', pitch: 13 };
+
+    // legend (top left) and panel headings
+    legendItem(c, 0, 4, 'Overall (95% CI)', COLOR.blue, 'dotci', MARK.overallR, MARK.ci);
+    legendItem(c, 0, 13, 'Each of the six roles', MARK.roleColor, 'dot', MARK.roleR);
+
+    // rows with group headings
+    const rows = [];
+    let yy = 38, prevGroup = null;
+    preds.forEach(p => {
+      if (p.group !== prevGroup) {
+        if (prevGroup !== null) yy += 5;
+        c.text(labelRight, yy, p.group, { anchor: 'end', bold: true });
+        yy += 11; prevGroup = p.group;
+      }
+      rows.push({ ...p, y: yy });
+      c.text(labelRight, yy, p.predictor, { anchor: 'end' });
+      yy += MARK.pitch;
+    });
+    const top = 32, bottom = yy - 6;
+
+    panels.forEach((p, i) => {
+      const x0 = x0all + i * (pw + gap), x1 = x0 + pw;
+      panelLabel(c, x0, 4, p.letter, p.construct, p.sub);
+      const est = D.estimates.filter(d => d.construct === p.construct);
+      if (!est.length) throw new Error(`Figure 3: no estimates for ${p.construct}`);
+      const vals = est.flatMap(d => d.level === 'Overall' ? [d.low, d.high] : [d.estimate]);
+      // Pad the axis so the outermost dot or CI end sits well inside it, and do
+      // not extend it to the next tick (that would put tick labels at the panel
+      // edges, where they collide with the neighbouring panel).
+      const axis = niceAxis(vals, { target: 4, pad: 0.08, snapWithin: 0 });
+      const x = linear(axis.lo, axis.hi, x0, x1);
+      verticalGrid(c, x, axis.ticks, top, bottom);
+      // All estimates for a predictor share one line: role dots first, then the
+      // overall CI and point on top.
+      rows.forEach(r => {
+        const sub = est.filter(d => d.predictor === r.predictor);
+        sub.filter(d => d.level !== 'Overall').forEach(d => c.circle(x(d.estimate), r.y, MARK.roleR, MARK.roleColor));
+        const o = sub.find(d => d.level === 'Overall');
+        if (o) { errorBar(c, x, o.low, o.high, r.y, COLOR.blue, MARK.ci); c.circle(x(o.estimate), r.y, MARK.overallR, COLOR.blue); }
+      });
+      xAxis(c, x, axis, bottom + 2, p.unit);
+    });
+    return c.toString(bottom + 27);
+  }
+
+  // ===========================================================================
+  // 10. Figure 4 - Expected and experienced quality-of-life impacts
+  // ===========================================================================
+  function figure4(D) {
+    const fields = ['n', 'mean', 'low', 'high'];
+    requireFields(D.items, ['action', 'role', ...['expected', 'experienced'].flatMap(s => fields.map(f => `${s}_${f}`))], 'Figure 4');
+    const c = new Canvas('Figure 4. Expected and experienced quality-of-life impacts');
+    const roleW = roleColumnWidth();
+    const labelRight = roleW + 10 + maxWidth(D.items.map(d => d.action), FONT.text);
+    const x0 = labelRight + 10, x1 = W - 6;
+    const lo = D.scale.min, hi = D.scale.max;
+    const x = linear(lo, hi, x0, x1);
+
+    let lx = x0 + 10;
+    lx = legendItem(c, lx, 4, 'Not yet taken (expected)', COLOR.tealDark, 'dotci');
+    legendItem(c, lx + 6, 4, 'Already taken (experienced)', COLOR.blue, 'dotci');
+
+    const rows = layoutRows(D.items, 22, 11.5, 6);
+    roleLabels(c, rows, 0);
+    const ticks = []; for (let t = lo; t <= hi; t++) ticks.push(t);
+    const bottom = rows[rows.length - 1].y + 7;
+    verticalGrid(c, x, ticks, 14, bottom);
+    rows.forEach(d => {
+      c.text(labelRight, d.y, d.action, { anchor: 'end' });
+      c.line(x(d.expected_mean), d.y, x(d.experienced_mean), d.y, COLOR.connector, STROKE.connector);
+      errorBar(c, x, d.expected_low, d.expected_high, d.y, COLOR.tealDark);
+      errorBar(c, x, d.experienced_low, d.experienced_high, d.y, COLOR.blue);
+      c.circle(x(d.expected_mean), d.y, 2.3, COLOR.tealDark, true);
+      c.circle(x(d.experienced_mean), d.y, 2.3, COLOR.blue, true);
+    });
+    xAxis(c, x, { lo, hi, ticks, digits: 0 }, bottom + 2);
+    c.text(x0, bottom + 18, 'Very negatively', { size: FONT.tick, fill: COLOR.muted });
+    c.text(x1, bottom + 18, 'Very positively', { size: FONT.tick, anchor: 'end', fill: COLOR.muted });
+    c.text((x0 + x1) / 2, bottom + 27, 'Quality-of-life impact', { anchor: 'middle' });
+    return c.toString(bottom + 34);
+  }
+
+  // ===========================================================================
+  // 11. Supplementary Figure 1 - Perceived opportunity and motivation
+  // ===========================================================================
+  function figureS1(D) {
+    const keys = ['opportunity', 'motivation'];
+    requireFields(D.items, ['action', 'role', ...keys.flatMap(k => ['n', 'mean', 'low', 'high'].map(f => `${k}_${f}`))], 'Supplementary Figure 1');
+    // One n column is shown; it is only unambiguous if both ratings share it.
+    D.items.forEach(d => {
+      if (d.opportunity_n !== d.motivation_n) {
+        throw new Error(`Supplementary Figure 1: n differs between ratings for "${d.action}"`);
+      }
+    });
+    const c = new Canvas('Supplementary Figure 1. Perceived opportunity and motivation across actions');
+    const roleW = roleColumnWidth();
+    const labelRight = roleW + 10 + maxWidth(D.items.map(d => d.action), FONT.text);
+    const nRight = labelRight + 6 + maxWidth(D.items.map(d => String(d.opportunity_n)), FONT.tick);
+    const gap = 22, x0all = nRight + 14, pw = (W - 6 - x0all - gap) / 2;
+    const panels = [
+      { key: 'opportunity', letter: 'a', title: 'Perceived opportunity', lo: 1, hi: 5, color: COLOR.opportunity },
+      { key: 'motivation', letter: 'b', title: 'Motivation', lo: 1, hi: 7, color: COLOR.motivation }
+    ];
+    const rows = layoutRows(D.items, 26, 11.5, 6);
+    roleLabels(c, rows, 0);
+    const bottom = rows[rows.length - 1].y + 7;
+    c.text(nRight, 16, 'n', { size: FONT.tick, anchor: 'end', fill: COLOR.muted });
+    rows.forEach(d => {
+      c.text(labelRight, d.y, d.action, { anchor: 'end' });
+      c.text(nRight, d.y, d.opportunity_n, { size: FONT.tick, anchor: 'end', fill: COLOR.muted });
+    });
+    panels.forEach((p, i) => {
+      const x0 = x0all + i * (pw + gap), x1 = x0 + pw;
+      panelLabel(c, x0, 4, p.letter, p.title);
+      const x = linear(p.lo, p.hi, x0, x1);
+      const ticks = []; for (let t = p.lo; t <= p.hi; t++) ticks.push(t);
+      ticks.forEach(t => c.line(x(t), 14, x(t), bottom, COLOR.grid, STROKE.grid));
+      c.line(x(D.overall[p.key]), 14, x(D.overall[p.key]), bottom, COLOR.zero, STROKE.zero, '2 2');
+      rows.forEach(d => {
+        errorBar(c, x, d[p.key + '_low'], d[p.key + '_high'], d.y, p.color);
+        c.circle(x(d[p.key + '_mean']), d.y, 2.3, p.color, true);
+      });
+      xAxis(c, x, { lo: p.lo, hi: p.hi, ticks, digits: 0 }, bottom + 2, `Rating (${p.lo}-${p.hi})`);
+    });
+    return c.toString(bottom + 27);
+  }
+
+  // ===========================================================================
+  // 12. Public API and command-line entry point
+  // ===========================================================================
+  const FIGURES = { '1': figure1, '2': figure2, '3': figure3, '4': figure4, 'S1': figureS1 };
+
+  function render(key, data) {
+    const f = FIGURES[key];
+    if (!f) throw new Error(`Unknown figure "${key}"`);
+    if (!data) throw new Error(`No data supplied for Figure ${key}`);
+    return f(data);
+  }
+
+  const api = { render, keys: Object.keys(FIGURES), textWidth, PAGE_WIDTH_MM };
+
+  if (typeof require !== 'undefined' && typeof module !== 'undefined' && require.main === module) {
+    const fs = require('fs'), path = require('path');
+    const dir = path.resolve(process.argv[2] || 'figures');
+    let failed = false;
+    for (const key of api.keys) {
+      const src = path.join(dir, `Figure_${key}_data.json`);
+      try {
+        const svg = render(key, JSON.parse(fs.readFileSync(src, 'utf8')));
+        fs.writeFileSync(path.join(dir, `Figure_${key}.svg`), svg);
+        console.log(`Figure ${key}: wrote ${path.join(dir, `Figure_${key}.svg`)}`);
+      } catch (e) {
+        failed = true;
+        console.error(`Figure ${key}: ${e.message}`);
+      }
+    }
+    if (failed) process.exit(1);
+  }
+  return api;
+});
+)---"
+
+figures_html <- r"---(<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Figures - Personal climate agency</title>
+<!--
+  Preview of the publication figures. Copied into figures/ by data_analysis.Rmd,
+  next to the Figure_<key>_data.js files it loads. Works from file:// with no
+  server or internet connection. Use the buttons to save SVG or 600-dpi PNG.
+-->
+<style>
+  body { margin: 0; padding: 24px; background: #F3F4F5; color: #1F2529;
+         font: 14px/1.4 Arial, Helvetica, sans-serif; }
+  h1 { font-size: 18px; margin: 0 0 4px; }
+  p.note { margin: 0 0 24px; color: #5E6A71; }
+  section { background: #FFFFFF; border: 1px solid #DDE1E4; border-radius: 6px;
+            padding: 16px; margin: 0 0 24px; max-width: 980px; }
+  section h2 { font-size: 15px; margin: 0 0 10px; display: flex; gap: 8px; align-items: center; }
+  section h2 span { flex: 1; }
+  button { font: inherit; font-size: 13px; padding: 4px 10px; border: 1px solid #B9C1C7;
+           border-radius: 4px; background: #FFFFFF; cursor: pointer; }
+  button:hover { background: #EEF1F3; }
+  .figure svg { width: 100%; height: auto; display: block; }
+  .error { color: #A33A2A; white-space: pre-wrap; }
+  @media print { body { background: #FFFFFF; padding: 0; } button, p.note { display: none; }
+                 section { border: none; page-break-after: always; } }
+</style>
+</head>
+<body>
+<h1>Personal climate agency: figures</h1>
+<p class="note">Rendered from the data exported by data_analysis.Rmd. Width 183 mm; text 6&ndash;8 pt at print size.</p>
+<div id="figures"></div>
+
+<script src="Figure_1_data.js"></script>
+<script src="Figure_2_data.js"></script>
+<script src="Figure_3_data.js"></script>
+<script src="Figure_4_data.js"></script>
+<script src="Figure_S1_data.js"></script>
+<script src="render_figures.js"></script>
+<script>
+(function () {
+  'use strict';
+  const NAMES = { '1': 'Figure 1', '2': 'Figure 2', '3': 'Figure 3', '4': 'Figure 4', 'S1': 'Supplementary Figure 1' };
+  const data = window.FIGURE_DATA || {};
+  const host = document.getElementById('figures');
+
+  function download(name, blob) {
+    const url = URL.createObjectURL(blob), a = document.createElement('a');
+    a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  function savePng(key, svgText) {
+    const widthPx = Math.round(FigureRenderer.PAGE_WIDTH_MM / 25.4 * 600);   // 600 dpi
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = widthPx;
+      canvas.height = Math.round(widthPx * img.naturalHeight / img.naturalWidth);
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#FFFFFF'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      canvas.toBlob(b => download(`Figure_${key}.png`, b), 'image/png');
+    };
+    img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgText);
+  }
+
+  for (const key of FigureRenderer.keys) {
+    const section = document.createElement('section');
+    const head = document.createElement('h2');
+    head.innerHTML = `<span>${NAMES[key]}</span>`;
+    section.appendChild(head);
+    const body = document.createElement('div');
+    body.className = 'figure';
+    section.appendChild(body);
+    host.appendChild(section);
+    try {
+      const svgText = FigureRenderer.render(key, data[key]);
+      body.innerHTML = svgText.replace(/^<\?xml[^>]*>\s*/, '');
+      const bSvg = document.createElement('button');
+      bSvg.textContent = 'Save SVG';
+      bSvg.onclick = () => download(`Figure_${key}.svg`, new Blob([svgText], { type: 'image/svg+xml' }));
+      const bPng = document.createElement('button');
+      bPng.textContent = 'Save PNG (600 dpi)';
+      bPng.onclick = () => savePng(key, svgText);
+      head.append(bSvg, bPng);
+    } catch (e) {
+      body.innerHTML = `<p class="error">${NAMES[key]} could not be drawn: ${e.message}</p>`;
+    }
+  }
+})();
+</script>
+</body>
+</html>
+)---"
+
+writeLines(render_figures_js, file.path(figure_dir, "render_figures.js"), useBytes = TRUE)
+writeLines(figures_html,      file.path(figure_dir, "figures.html"),      useBytes = TRUE)
+```
+
+## Rendering
+
+```{r figure-render}
+# Draw each figure with the JavaScript renderer, run inside R by the V8 package
+# (no Node.js or browser needed), then convert the SVGs to PDF and PNG.
+for (pkg in c("V8", "rsvg")) {
+  if (!requireNamespace(pkg, quietly = TRUE)) {
+    stop("The R package '", pkg, "' is needed to draw the figures. ",
+         "Install it once with install.packages(\"", pkg, "\").")
+  }
+}
+
+js <- V8::v8()
+js$source(file.path(figure_dir, "render_figures.js"))
+
+figure_svgs <- file.path(figure_dir, paste0("Figure_", figure_keys, ".svg"))
+for (i in seq_along(figure_keys)) {
+  data_json <- paste(readLines(file.path(figure_dir, paste0("Figure_", figure_keys[i], "_data.json")),
+                               warn = FALSE, encoding = "UTF-8"),
+                     collapse = "\n")
+  svg <- js$call("FigureRenderer.render", figure_keys[i], V8::JS(data_json))
+  writeLines(enc2utf8(svg), figure_svgs[i], useBytes = TRUE)
+}
+
+png_width <- round(183 / 25.4 * 600)   # 183 mm at 600 dpi
+for (svg in figure_svgs) {
+  rsvg::rsvg_pdf(svg, sub("\\.svg$", ".pdf", svg))
+  rsvg::rsvg_png(svg, sub("\\.svg$", ".png", svg), width = png_width)
+}
+message("Figures written to ", figure_dir, ": ",
+        paste0("Figure_", figure_keys, collapse = ", "), " (.svg, .pdf, .png)")
+```
+
+```{r figure-preview, echo = FALSE, out.width = "100%"}
+figure_pngs <- file.path(figure_dir, paste0("Figure_", figure_keys, ".png"))
+if (all(file.exists(figure_pngs))) knitr::include_graphics(figure_pngs)
+```
+
+```{r}
+sessioninfo::session_info()
+```

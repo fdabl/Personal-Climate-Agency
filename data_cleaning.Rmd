@@ -1,0 +1,498 @@
+---
+title: "Data cleaning"
+author: Kristian Nielsen, Jianing Ding
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+header-includes:
+   - "\\usepackage{booktabs}"
+output:
+  html_document:
+    toc: true
+    theme: united
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = TRUE)
+```
+
+# Purpose
+
+This script takes the raw Qualtrics export and produces three files that the
+analysis script reads directly.
+
+* `data_clean_person.rds` — one row per respondent, all person-level variables
+  including standardised predictors.
+* `data_clean_long.rds` — one row per person × action (18 actions), with the
+  three-state classification, ratings, roles, and person-level predictors
+  merged in.
+* `data_rudersdal_anon.csv` — anonymised raw for sharing.
+
+```{r packages}
+required_pkgs <- c(
+  "tidyverse", "here", "janitor", "labelled", "psych", "conflicted"
+)
+to_install <- setdiff(required_pkgs, rownames(installed.packages()))
+if (length(to_install) > 0) install.packages(to_install)
+invisible(lapply(required_pkgs, library, character.only = TRUE))
+
+conflicted::conflicts_prefer(
+  dplyr::filter, dplyr::select, dplyr::mutate,
+  dplyr::summarise, dplyr::arrange, dplyr::lag, dplyr::recode
+)
+
+set.seed(20260305)
+```
+
+# Read and screen
+
+```{r read}
+here::i_am("data_cleaning.Rmd")
+df_raw <- readr::read_delim(here::here("data/data_rudersdal_new.csv"),
+                          col_types = cols()) |>
+  janitor::clean_names() |>
+  readr::type_convert()
+
+nrow(df_raw)
+```
+
+```{r screen}
+qualtrics_vars <- c(
+  "ip_address", "recipient_last_name", "recipient_first_name",
+  "recipient_email", "external_reference", "location_latitude",
+  "location_longitude", "distribution_channel", "user_language", "status"
+)
+
+df <- df_raw |>
+  select(-any_of(qualtrics_vars)) |>
+  filter(
+    consent == 1,
+    finished == 1
+  )
+
+# Duplicates
+dupes <- df |> count(response_id) |> filter(n > 1)
+stopifnot(nrow(dupes) == 0)
+
+# Completion. Report rather than filter; if you exclude speeders, do it here
+# and record how many, because the Methods needs the number.
+summary(df$duration_in_seconds)
+median_time <- median(df$duration_in_seconds, na.rm = TRUE)
+n_speeders  <- sum(df$duration_in_seconds < median_time / 3, na.rm = TRUE)
+message("Completed in under one third of median time: ", n_speeders)
+
+# Termination flag from the survey flow
+if ("q_terminate_flag" %in% names(df)) print(table(df$q_terminate_flag, useNA = "ifany"))
+
+nrow(df)
+```
+
+## Response rate and non-response
+
+```{r response-rate}
+n_invited  <- 10000
+n_complete <- nrow(df)
+
+tibble(
+  invited        = n_invited,
+  complete       = n_complete,
+  response_rate  = round(100 * n_complete / n_invited, 1)
+)
+
+# Sample composition for comparison against municipal register statistics
+df |>
+  summarise(
+    mean_age     = mean(age, na.rm = TRUE),
+    sd_age       = sd(age, na.rm = TRUE),
+    pct_female   = 100 * mean(gender == 2, na.rm = TRUE),
+    median_income_cat = median(income, na.rm = TRUE)
+  )
+```
+
+## Anonymised export
+
+```{r anon}
+# The public-use file excludes direct identifiers, exact timestamps, Qualtrics
+# identifiers/metadata, linkage/contact variables, and all free-text responses.
+# A fresh study ID replaces response_id, and rows are shuffled so file order
+# cannot be used as a proxy for survey completion time.
+sensitive_vars <- c(
+  "response_id", "start_date", "end_date", "recorded_date",
+  "duration_in_seconds", "progress", "finished", "consent",
+  "consent_register", "interview", "contact", "contact_id", "id",
+  "q_terminate_flag", "personal_action", "occupation_8_text",
+  "mun_suggestions", "mail", "telephone"
+)
+
+set.seed(20260305)
+df_anon <- df |>
+  mutate(study_id = sprintf("P%04d", sample.int(n()))) |>
+  select(-any_of(sensitive_vars)) |>
+  relocate(study_id) |>
+  slice_sample(prop = 1)
+
+readr::write_csv(df_anon, here::here("data", "data_rudersdal_anon.csv"))
+
+stopifnot(
+  !any(sensitive_vars %in% names(df_anon)),
+  n_distinct(df_anon$study_id) == nrow(df_anon)
+)
+
+# Register-consent subset, kept separately if needed later
+df_register <- df |> filter(consent_register == 1)
+message("Consented to register linkage: ", nrow(df_register))
+```
+
+# Classify the 18 climate actions
+
+The raw opportunity items code 1–5 as the certainty rating, 6 as "I do or have
+already done this", and "Not relevant for me" as either 7 or a blank depending
+on the export. We check which, then build one three-state variable per action
+rather than the previous PEB / opportunity_na pair.
+
+```{r classify}
+opp_raw <- c(paste0("opportunity_consumer_", 1:9),
+             paste0("opportunity_other_", 1:9))
+mot_raw <- c(paste0("motivation_consumer_", 1:9),
+             paste0("motivation_other_", 1:9))
+wb_raw  <- c(paste0("wellbeing_consumer_", 1:9),
+             paste0("wellbeing_other_", 1:9))
+
+stopifnot(all(c(opp_raw, mot_raw, wb_raw) %in% names(df)))
+
+# Diagnostic: is "not relevant" exported as 7, or as a blank?
+n_sevens <- sum(map_int(df[opp_raw], ~sum(.x == 7, na.rm = TRUE)))
+message("Responses coded 7: ", n_sevens,
+        if (n_sevens == 0) "  -> blanks are being treated as 'not relevant'" else "")
+
+# Renumber to 1:18 in the order used throughout the paper
+names(df)[match(opp_raw, names(df))] <- paste0("opportunity_", 1:18)
+names(df)[match(mot_raw, names(df))] <- paste0("motivation_",  1:18)
+names(df)[match(wb_raw,  names(df))] <- paste0("wellbeing_",   1:18)
+
+for (i in 1:18) {
+  o <- df[[paste0("opportunity_", i)]]
+
+  df[[paste0("action_status_", i)]] <- dplyr::case_when(
+    is.na(o) | o == 7 ~ "Not relevant",
+    o == 6            ~ "Already taken",
+    o %in% 1:5        ~ "Relevant, not taken",
+    TRUE              ~ NA_character_
+  )
+
+  # Perceived opportunity to act: only defined for relevant, not-yet-taken
+  df[[paste0("opportunity_", i)]] <- ifelse(o %in% 1:5, o, NA_real_)
+}
+
+```
+
+# Behavioural baselines
+
+## Air travel
+
+Aggregation follows Pizzo et al., with one adjustment. Their item asks about
+round trips and applies round-trip distances of 2,000 / 5,800 / 11,500 km. The
+Rudersdal item asks about one-way legs and says so explicitly (Copenhagen–Madrid
+return counts as two trips), so the per-leg distances are half of theirs.
+
+```{r flying}
+haul_km <- c(short = 1000, medium = 2900, long = 5750)   # per one-way leg
+
+all_flying_blank <- is.na(df$flying_1) & is.na(df$flying_2) & is.na(df$flying_3)
+message("Left all three flying items blank: ", sum(all_flying_blank))
+
+df <- df |>
+  mutate(
+    # Partial blanks are treated as zero; respondents who skipped all three are
+    # treated as missing, since coding non-response as zero would bias the
+    # distribution downward in exactly the group least likely to fly.
+    f1 = replace_na(flying_1, 0),
+    f2 = replace_na(flying_2, 0),
+    f3 = replace_na(flying_3, 0),
+
+    flying_frequency = f1 + f2 + f3,
+    flying_distance  = f1 * haul_km["short"] +
+                       f2 * haul_km["medium"] +
+                       f3 * haul_km["long"],
+
+    flying_frequency = ifelse(all_flying_blank, NA_real_, flying_frequency),
+    flying_distance  = ifelse(all_flying_blank, NA_real_, flying_distance)
+  ) |>
+  select(-f1, -f2, -f3)
+
+# Non-flyers plus tertiles among flyers (skewed and zero-inflated)
+cuts <- quantile(df$flying_distance[df$flying_distance > 0],
+                 c(1/3, 2/3), na.rm = TRUE)
+
+df <- df |>
+  mutate(
+    flying_distance_cat = case_when(
+      is.na(flying_distance)     ~ NA_character_,
+      flying_distance == 0       ~ "Non-flyer",
+      flying_distance <= cuts[1] ~ "Low",
+      flying_distance <= cuts[2] ~ "Medium",
+      TRUE                       ~ "High"
+    ) |> factor(levels = c("Non-flyer", "Low", "Medium", "High"))
+  )
+
+df |> count(flying_distance_cat)
+df |> group_by(flying_distance_cat) |>
+  summarise(mean_km = mean(flying_distance), n = n())
+```
+
+## Driving, diet, clothing
+
+
+```{r other-baselines}
+df <- df |> mutate(red_meat = meat_1, white_meat = meat_2)
+```
+
+# Composite scales
+
+```{r composites}
+row_mean_min <- function(data, vars, min_valid) {
+  m <- as.matrix(data[vars])
+  n_valid <- rowSums(!is.na(m))
+  out <- rowMeans(m, na.rm = TRUE)
+  out[n_valid < min_valid] <- NA_real_
+  out
+}
+
+# Climate conversation. Response 8 = "not relevant" -> missing.
+# psych::alpha() can silently reverse-key an item that correlates negatively
+# with the total, so we compute alpha with check.keys = FALSE and print the
+# item statistics to confirm no item needs reversing.
+alpha_raw <- function(data, vars) {
+  a <- psych::alpha(data[vars], check.keys = FALSE, warnings = FALSE)
+  print(round(a$item.stats[, c("r.drop", "mean", "sd")], 2))
+  a$total$raw_alpha
+}
+
+conv_vars <- paste0("conversation_", 1:4)
+df[conv_vars] <- lapply(df[conv_vars], function(x) ifelse(x == 8, NA, x))
+alpha_conversation <- alpha_raw(df, conv_vars)
+df$conversation <- row_mean_min(df, conv_vars, min_valid = 2)
+
+# Individual-attribution belief (previously "autonomy"): attribution of
+# inaction to individual willpower rather than to structural constraint.
+attr_vars <- paste0("autonomy_", 1:3)
+alpha_attribution <- alpha_raw(df, attr_vars)
+df$attribution <- row_mean_min(df, attr_vars, min_valid = 2)
+alpha_attribution
+
+# Techno-optimism
+tech_vars <- paste0("techno_optimism_", 1:3)
+alpha_techno <- alpha_raw(df, tech_vars)
+df$techno_optimism <- row_mean_min(df, tech_vars, min_valid = 2)
+
+# Political orientation: economic and social/values only.
+# political_3 is climate and environmental policy and is kept separate.
+df$political         <- row_mean_min(df, c("political_1", "political_2"), min_valid = 1)
+df$political_climate <- df$political_3
+
+tibble(
+  scale = c("conversation", "attribution", "techno_optimism"),
+  alpha = round(c(alpha_conversation, alpha_attribution, alpha_techno), 2)
+)
+```
+
+# Demographics and socioeconomic position
+
+```{r demographics}
+df <- df |>
+  mutate(
+    income      = ifelse(income == 11, NA, income),        # prefer not to say
+    leadership  = ifelse(leadership == 4, NA, leadership), # prefer not to say
+
+    gender_bin  = ifelse(gender %in% c(1, 2), gender - 1, NA),  # 0 = man, 1 = woman
+
+    is_employed = factor(
+      case_when(
+        is.na(occupation)             ~ NA_character_,
+        occupation %in% c(1, 2, 3)    ~ "Employed",
+        TRUE                          ~ "Not employed"
+      ),
+      levels = c("Not employed", "Employed")
+    ),
+
+    # Leadership was only asked of full- and part-time employees, so
+    # self-employed respondents are missing by design. We retain them as a
+    # separate descriptive category; leadership models exclude them because
+    # their responsibility level was not measured.
+    leadership_cat = case_when(
+      occupation == 3        ~ "Self-employed",
+      leadership == 1        ~ "Strategic/financial",
+      leadership == 2        ~ "Professional/administrative",
+      leadership == 3        ~ "No decision authority",
+      TRUE                   ~ NA_character_
+    ) |> factor(levels = c("No decision authority",
+                           "Professional/administrative",
+                           "Strategic/financial",
+                           "Self-employed"))
+  )
+
+df |> count(occupation, leadership_cat)
+```
+
+# Standardised predictors
+
+```{r z-scores}
+z <- function(x) as.numeric(scale(x))
+
+df <- df |>
+  mutate(
+    age_z                 = z(age),
+    income_z              = z(income),
+    income_status         = if_else(is.na(income_z), "missing", "reported"),
+    income_filled_z       = if_else(is.na(income_z), 0, income_z),
+
+    occupation_prestige_z = z(occupation_prestige),
+    prestige_status       = if_else(is.na(occupation_prestige_z), "missing", "reported"),
+    prestige_filled_z     = if_else(is.na(occupation_prestige_z), 0, occupation_prestige_z),
+
+    political_z           = z(political),
+    action_knowledge_z    = z(action_knowledge),
+    climate_knowledge_z   = z(climate_knowledge),
+    conversation_z        = z(conversation),
+    attribution_z         = z(attribution),
+    techno_optimism_z     = z(techno_optimism),
+    injunctive_norm_z     = z(injunctive_norm),
+    climate_impact_z      = z(cc_impact),
+    carbon_footprint_z    = z(carbon_footprint)
+  )
+```
+
+# Person-level file
+
+```{r person-file}
+status_vars <- paste0("action_status_", 1:18)
+
+df_person <- df |>
+  rowwise() |>
+  mutate(
+    n_not_relevant    = sum(c_across(all_of(status_vars)) == "Not relevant"),
+    n_already_taken   = sum(c_across(all_of(status_vars)) == "Already taken"),
+    opportunity_space = 18 - n_not_relevant,
+    remaining_space   = opportunity_space - n_already_taken,
+    utilisation_share = ifelse(opportunity_space > 0,
+                               n_already_taken / opportunity_space, NA_real_)
+  ) |>
+  ungroup()
+
+df_person |>
+  summarise(across(c(opportunity_space, n_already_taken, remaining_space),
+                   list(mean = mean, median = median), .names = "{.col}_{.fn}"))
+
+# Respondents who classified all 18 actions as not relevant
+df_person |> filter(opportunity_space == 0) |> nrow()
+```
+
+# Long file
+
+```{r long-file}
+behaviour_labels <- c(
+  "1"  = "Buy an electric car",
+  "2"  = "Improve home energy efficiency",
+  "3"  = "Take fewer flights",
+  "4"  = "Eat less red meat",
+  "5"  = "Use public transport for most longer trips",
+  "6"  = "Install solar panels",
+  "7"  = "Eat less white meat",
+  "8"  = "Drive fewer kilometers",
+  "9"  = "Reduce home heating/cooling energy use",
+  "10" = "Move investments/pension to climate-friendly funds",
+  "11" = "Donate to climate organizations",
+  "12" = "Suggest or support climate initiatives at work",
+  "13" = "Promote ambitious climate-related changes in organization",
+  "14" = "Be a climate role model",
+  "15" = "Talk with family/friends about climate action",
+  "16" = "Vote for pro-climate politicians",
+  "17" = "Sign petitions/contact politicians about climate",
+  "18" = "Participate in climate demonstrations"
+)
+
+role_levels <- c("Consumer (technology)", "Consumer (curtailment)",
+                 "Organisational participant", "Investor", "Citizen",
+                 "Social role model")
+
+person_vars <- c(
+  "response_id", "age", "age_z", "gender_bin", "is_employed",
+  "income", "income_z", "income_status", "income_filled_z",
+  "occupation", "occupation_prestige_z", "prestige_status", "prestige_filled_z",
+  "leadership_cat", "political_z", "political_climate",
+  "action_knowledge_z", "climate_knowledge_z", "conversation_z",
+  "attribution_z", "techno_optimism_z", "injunctive_norm_z",
+  "climate_impact_z", "carbon_footprint_z",
+  "driving", "flying_frequency", "flying_distance", "flying_distance_cat",
+  "red_meat", "white_meat", "clothing"
+)
+
+df_long <- df |>
+  select(all_of(person_vars),
+         matches("^(opportunity|motivation|wellbeing|action_status)_\\d+$")) |>
+  pivot_longer(
+    cols = matches("^(opportunity|motivation|wellbeing|action_status)_\\d+$"),
+    names_to = c(".value", "behaviour_id"),
+    names_pattern = "^(.*)_(\\d+)$",
+    values_drop_na = FALSE
+  ) |>
+  rename(action_status = action_status) |>
+  mutate(
+    behaviour_id  = as.integer(behaviour_id),
+    action_status = factor(action_status,
+                           levels = c("Not relevant", "Relevant, not taken",
+                                      "Already taken")),
+    behaviour_name = factor(as.character(behaviour_id),
+                            levels = names(behaviour_labels),
+                            labels = behaviour_labels),
+    behaviour_role = case_when(
+      behaviour_id %in% c(1, 2, 6)            ~ "Consumer (technology)",
+      behaviour_id %in% c(3, 4, 5, 7, 8, 9)   ~ "Consumer (curtailment)",
+      behaviour_id %in% c(12, 13)             ~ "Organisational participant",
+      behaviour_id == 10                      ~ "Investor",
+      behaviour_id %in% c(11, 16, 17, 18)     ~ "Citizen",
+      behaviour_id %in% c(14, 15)             ~ "Social role model"
+    ) |> factor(levels = role_levels),
+
+    is_relevant = as.integer(action_status != "Not relevant"),
+    is_taken    = as.integer(action_status == "Already taken"),
+
+    # Expected (not yet taken) or experienced (already taken) quality-of-life
+    # impact, centred on the scale midpoint. Expected QoL is standardised later,
+    # within the untaken-action analysis population only.
+    qol         = wellbeing - 4
+  )
+
+# Sanity checks
+stopifnot(nrow(df_long) == nrow(df) * 18)
+df_long |> count(action_status)
+df_long |> count(behaviour_role)
+
+# Perceived opportunity to act and motivation exist only for untaken actions
+df_long |>
+  group_by(action_status) |>
+  summarise(opp_observed = sum(!is.na(opportunity)),
+            mot_observed = sum(!is.na(motivation)))
+```
+
+# Save
+
+```{r save}
+dir.create(here::here("data", "clean"), showWarnings = FALSE, recursive = TRUE)
+
+saveRDS(df_person, here::here("data", "clean", "data_clean_person.rds"))
+saveRDS(df_long,   here::here("data", "clean", "data_clean_long.rds"))
+
+# Constants the analysis script needs
+saveRDS(
+  list(
+    behaviour_labels = behaviour_labels,
+    role_levels      = role_levels,
+    haul_km          = haul_km,
+    flying_cuts      = cuts
+  ),
+  here::here("data", "clean", "constants.rds")
+)
+```
+
+```{r}
+sessioninfo::session_info()
+```

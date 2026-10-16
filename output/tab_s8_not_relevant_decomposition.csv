@@ -1,0 +1,10 @@
+behaviour_role,cause,n,pct
+Consumer (technology),Asset non-applicability (assumed),629,76.3
+Consumer (technology),Residual,195,23.7
+Consumer (curtailment),Floor effect,134,26.9
+Consumer (curtailment),Residual,365,73.1
+Organisational participant,Residual,133,14.9
+Organisational participant,Role non-applicability,760,85.1
+Investor,Residual,215,100
+Citizen,Residual,430,100
+Social role model,Residual,119,100
